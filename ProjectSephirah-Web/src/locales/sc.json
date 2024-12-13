@@ -1,0 +1,11 @@
+{
+    "component": {
+        "common": {
+            "topnav": {
+                "option": {
+                    "home": "主页"
+                }
+            }
+        }
+    }
+}

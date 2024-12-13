@@ -1,0 +1,15 @@
+spring:
+    output:
+        ansi:
+            enabled: always
+    data:
+        mongodb:
+            host: ${MONGODB_HOST}
+            database: ${MONGODB_DB}
+            port: ${MONGODB_PORT}
+
+server:
+    port: ${SERVER_PORT}
+
+mvc:
+    throw-exception-if-no-handler-found: true
