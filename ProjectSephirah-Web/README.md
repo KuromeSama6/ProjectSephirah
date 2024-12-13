@@ -1,2 +1,0 @@
-# UMR - Unified Manga Reader
-
