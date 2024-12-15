@@ -12,6 +12,5 @@ const overlays = useOverlaysStore();
 singletons.toastSingleton = toast;
 </script>
 <template>
-    <ChapterSelectDialog />
     <Toast position="bottom-right" />
 </template>

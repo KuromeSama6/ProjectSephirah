@@ -1,5 +1,6 @@
 /** @type {import("tailwindcss").Config} */
-const colors = require("tailwindcss/colors");
+import colors from "tailwindcss/colors";
+import flowbitePlugin from "flowbite/plugin";
 
 export default {
     content: [
@@ -24,6 +25,6 @@ export default {
         },
     },
     plugins: [
-        require("flowbite/plugin"),
+        flowbitePlugin,
     ],
 };

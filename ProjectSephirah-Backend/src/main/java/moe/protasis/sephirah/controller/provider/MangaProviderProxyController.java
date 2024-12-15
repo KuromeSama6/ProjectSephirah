@@ -38,7 +38,7 @@ public class MangaProviderProxyController {
                 .Set("results", ret);
     }
 
-    @GetMapping("/manga/{id}/details")
+    @GetMapping("/manga/{id}")
     public JsonWrapper GetMangaDetails(@PathVariable String id, IProxyMangaProvider provider, @PathParam("lang") String language) {
         var ret = provider.GetMangaDetails(client, id, language);
 
@@ -57,7 +57,8 @@ public class MangaProviderProxyController {
         var details = provider.GetChapterDetails(client, mangaId, chapterId, language);
         return new JsonWrapper()
                 .Set("provider", provider.GetId())
-                .SetObject("details", details);
+                .SetObject("details", details)
+                .Set("image_cache_length", provider.GetImageCacheLength());
     }
 
     @GetMapping("/manga/{mangaId}/{chapterId}/images")
@@ -70,6 +71,7 @@ public class MangaProviderProxyController {
         var images = provider.GetChapterImages(client, mangaId, chapterId, language);
         return new JsonWrapper()
                 .Set("provider", provider.GetId())
-                .Set("images", images);
+                .Set("images", images)
+                .Set("image_cache_length", provider.GetImageCacheLength());
     }
 }

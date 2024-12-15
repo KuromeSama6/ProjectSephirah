@@ -57,12 +57,12 @@ function SelectChapter() {
 function ReadLatest() {
     if (!chapters.value) return;
     StartReading(chapters.value.groups[0].chapters.slice().reverse()[0]);
-    if (route.name == "MangaReader") setTimeout(() => router.go(0), 1);
+    if (route.name == "MangaReader") setTimeout(() => router.go(0), 100);
 }
 
 function StartReading(chap: ChapterInfo) {
     router.push(`/${provider.id}/manga/${mangaId}/read/${chap.id}?lang=${language}`);
-    if (route.name == "MangaReader") setTimeout(() => router.go(0), 1);
+    if (route.name == "MangaReader") setTimeout(() => router.go(0), 100);
 }
 
 onMounted(async () => {

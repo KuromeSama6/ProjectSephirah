@@ -1,6 +1,7 @@
 import { MangaProvider } from "../../backend/manga/MangaProvider.ts";
-import { MangaInfo } from "../../backend/manga/Manga.ts";
+import { ChapterDetails, MangaDetails, MangaInfo } from "../../backend/manga/Manga.ts";
 import RequestUtil from "../../backend/util/RequestUtil.ts";
+import { SupportedLanguage } from "../../backend/common/Language.ts";
 
 export default class MangaProviderNHentai implements MangaProvider {
     readonly id = "nhentai";
@@ -8,8 +9,8 @@ export default class MangaProviderNHentai implements MangaProvider {
         name: "nhentai",
         website: "https://nhentai.net",
         hentaiDedicated: true,
-        primaryLanguage: "intl",
-        supportedSearchLanguages: ["en", "jp"],
+        primaryLanguage: "en" as SupportedLanguage,
+        supportedSearchLanguages: ["en", "jp"] as SupportedLanguage[],
     };
 
     async CheckAvailability(): Promise<boolean> {
@@ -18,5 +19,13 @@ export default class MangaProviderNHentai implements MangaProvider {
 
     async Search(query: string): Promise<MangaInfo[]> {
         return [];
+    }
+
+    async GetChapterDetails(mangaId: string, chapterId: string, language: SupportedLanguage): Promise<ChapterDetails | null> {
+        return null;
+    }
+
+    async GetMangaDetails(id: string, language: SupportedLanguage): Promise<MangaDetails | null> {
+        return null;
     }
 }

@@ -4,12 +4,11 @@ spring:
             enabled: always
     data:
         mongodb:
-            host: ${MONGODB_HOST}
-            database: ${MONGODB_DB}
-            port: ${MONGODB_PORT}
+            uri: ${MONGODB_URI:mongodb://localhost:27017}
+            database: ${MONGODB_DATABASE:sephirah}
 
 server:
-    port: ${SERVER_PORT}
+    port: ${SERVER_PORT:6023}
 
 mvc:
     throw-exception-if-no-handler-found: true

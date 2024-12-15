@@ -1,6 +1,7 @@
 import { MangaProvider } from "../../backend/manga/MangaProvider.ts";
-import { MangaInfo } from "../../backend/manga/Manga.ts";
+import { ChapterDetails, MangaDetails, MangaInfo } from "../../backend/manga/Manga.ts";
 import RequestUtil from "../../backend/util/RequestUtil.ts";
+import { SupportedLanguage } from "../../backend/common/Language.ts";
 
 export default class MangaProviderDmzj implements MangaProvider {
     readonly id = "dmzj";
@@ -8,8 +9,8 @@ export default class MangaProviderDmzj implements MangaProvider {
         name: "动漫之家",
         website: "https://www.idmzj.com/",
         hentaiDedicated: false,
-        primaryLanguage: "cn",
-        supportedSearchLanguages: ["cn"],
+        primaryLanguage: "cn" as SupportedLanguage,
+        supportedSearchLanguages: ["cn"] as SupportedLanguage[],
     };
 
     async Search(kw: string, language: SupportedLanguage): Promise<MangaInfo[]> {
@@ -18,5 +19,13 @@ export default class MangaProviderDmzj implements MangaProvider {
 
     async CheckAvailability(): Promise<boolean> {
         return await RequestUtil.CheckUrlAvailability("https://www.idmzj.com/");
+    }
+
+    async GetChapterDetails(mangaId: string, chapterId: string, language: SupportedLanguage): Promise<ChapterDetails | null> {
+        return null;
+    }
+
+    async GetMangaDetails(id: string, language: SupportedLanguage): Promise<MangaDetails | null> {
+        return null;
     }
 }

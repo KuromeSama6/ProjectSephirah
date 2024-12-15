@@ -18,11 +18,11 @@ interface State {
 
 const providerList: MangaProvider[] = [
     new MangaProviderCopyManga(),
+    new MangaProviderManhuagui(),
     new MangaProviderNHentai(),
     new MangaProviderMangadex(),
     new MangaProviderManganato(),
     new MangaProviderDmzj(),
-    new MangaProviderManhuagui(),
     new MangaProviderPica(),
     new MangaProviderJmtt(),
 ];

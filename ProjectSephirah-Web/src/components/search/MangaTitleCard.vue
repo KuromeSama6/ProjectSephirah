@@ -5,7 +5,6 @@ import MaterialIcon from "../common/util/MaterialIcon.vue";
 import { computed } from "vue";
 import { useRouter } from "vue-router";
 import { useSettingsStore } from "../../stores/settingsStore.ts";
-import { set } from "js-cookie";
 
 const props = defineProps<{
     manga: MangaInfo;

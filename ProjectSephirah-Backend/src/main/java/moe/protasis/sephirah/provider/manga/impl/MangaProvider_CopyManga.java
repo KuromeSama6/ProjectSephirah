@@ -2,12 +2,13 @@ package moe.protasis.sephirah.provider.manga.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import moe.protasis.sephirah.data.manga.ChapterInfo;
+import moe.protasis.sephirah.data.manga.ChapterDetails;
 import moe.protasis.sephirah.data.manga.MangaDetails;
 import moe.protasis.sephirah.data.manga.MangaInfo;
 import moe.protasis.sephirah.exception.APIException;
 import moe.protasis.sephirah.exception.FeatureNotImplementedException;
 import moe.protasis.sephirah.exception.provider.ProviderNotAvailableException;
+import moe.protasis.sephirah.exception.provider.ProviderRequestException;
 import moe.protasis.sephirah.provider.manga.IProxyMangaProvider;
 import moe.protasis.sephirah.util.JsonWrapper;
 import moe.protasis.sephirah.util.ProviderUtil;
@@ -57,7 +58,7 @@ public class MangaProvider_CopyManga implements IProxyMangaProvider {
     }
 
     @Override
-    public ChapterInfo GetChapterDetails(OkHttpClient client, String mangaId, String chapterId, String language) {
+    public ChapterDetails GetChapterDetails(OkHttpClient client, String mangaId, String chapterId, String language) {
         throw new FeatureNotImplementedException();
     }
 
@@ -69,6 +70,11 @@ public class MangaProvider_CopyManga implements IProxyMangaProvider {
         var req = GetRequestBuilder("/comic/%s/chapter/%s".formatted(mangaId, chapterId))
                 .build();
         var res = ProviderUtil.SendProviderRequestString(client, req);
+        if (!res.response().isSuccessful()) {
+            throw new ProviderRequestException(60, 502, "provider request failed", new JsonWrapper()
+                    .Set("code", res.response().code())
+            );
+        }
 
         if (!res.response().isSuccessful())
             throw new ProviderNotAvailableException("load failed (remote returned %d)".formatted(res.response().code()));

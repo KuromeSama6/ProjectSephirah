@@ -2,6 +2,7 @@ import { Provider } from "../provider/Provider.ts";
 import { ChapterDetails, ChapterInfo, MangaDetails, MangaInfo, MangaStatus } from "./Manga.ts";
 import { APIUtil } from "../api/APIUtil.ts";
 import { SupportedLanguage } from "../common/Language.ts";
+import axios from "axios";
 
 export interface MangaProvider extends Provider {
     // Manga Source Data
@@ -44,7 +45,7 @@ export abstract class ProxiedMangaProvider implements MangaProvider {
     }
 
     async GetMangaDetails(id: string, language: SupportedLanguage): Promise<MangaDetails | null> {
-        const res = await APIUtil.SendRequest("get", `/api/provider/${this.id}/proxy/manga/${id}/details?lang=${language}`);
+        const res = await APIUtil.SendRequest("get", `/api/provider/${this.id}/proxy/manga/${id}?lang=${language}`);
         if (!res.success) return null;
 
         const data = res.data?.details;
@@ -62,10 +63,14 @@ export abstract class ProxiedMangaProvider implements MangaProvider {
         if (!res.success) return null;
         const data = res.data.details;
 
+        // test
+        // console.log(res.data.image_cache_length);
+
         return {
             ...data,
             provider: this,
-            images: () => this.GetChapterImages(mangaId, chapterId, language),
+            imageCacheLength: res.data.image_cache_length,
+            images: () => data.images,
         };
     }
 

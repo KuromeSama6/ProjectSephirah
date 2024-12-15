@@ -15,4 +15,16 @@ public class ChapterGroup {
     private String name;
     private int count;
     private List<ChapterInfo> chapters = new ArrayList<>();
+
+//    public void AutoAssignRelations() {
+//        for (int i = 0; i < chapters.size(); i++) {
+//            var c = chapters.get(i);
+//            if (i > 0) {
+//                c.setPrevChapter(chapters.get(i - 1).getId());
+//            }
+//            if (i < chapters.size() - 1) {
+//                c.setNextChapter(chapters.get(i + 1).getId());
+//            }
+//        }
+//    }
 }

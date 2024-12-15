@@ -23,6 +23,7 @@ export interface ChapterDetails extends ChapterInfo {
     nextChapter?: string;
     prevChapter?: string;
     images: LazyGet<string[] | null>;
+    imageCacheLength: number;
 }
 
 export interface ChapterGroup {

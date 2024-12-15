@@ -1,6 +1,7 @@
 import { MangaProvider } from "../../backend/manga/MangaProvider.ts";
-import { MangaInfo } from "../../backend/manga/Manga.ts";
+import { ChapterDetails, MangaDetails, MangaInfo } from "../../backend/manga/Manga.ts";
 import RequestUtil from "../../backend/util/RequestUtil.ts";
+import { SupportedLanguage } from "../../backend/common/Language.ts";
 
 export default class MangaProviderManganato implements MangaProvider {
     readonly id = "manganato";
@@ -8,8 +9,8 @@ export default class MangaProviderManganato implements MangaProvider {
         name: "Manganato",
         website: "https://manganato.com",
         hentaiDedicated: false,
-        primaryLanguage: "en",
-        supportedSearchLanguages: ["en"],
+        primaryLanguage: "en" as SupportedLanguage,
+        supportedSearchLanguages: ["en"] as SupportedLanguage[],
     };
 
     async CheckAvailability(): Promise<boolean> {
@@ -18,5 +19,13 @@ export default class MangaProviderManganato implements MangaProvider {
 
     async Search(query: string): Promise<MangaInfo[]> {
         return [];
+    }
+
+    async GetChapterDetails(mangaId: string, chapterId: string, language: SupportedLanguage): Promise<ChapterDetails | null> {
+        return null;
+    }
+
+    async GetMangaDetails(id: string, language: SupportedLanguage): Promise<MangaDetails | null> {
+        return null;
     }
 }

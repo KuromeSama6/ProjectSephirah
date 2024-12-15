@@ -74,18 +74,18 @@ function ToggleList() {
 function ReadPrev() {
     if (!chapter.value?.prevChapter) return;
     router.push(`/${provider.id}/manga/${mangaId}/read/${chapter.value.prevChapter}?lang=${language}`);
-    setTimeout(() => router.go(0), 1);
+    setTimeout(() => router.go(0), 100);
 }
 
 function ReadNext() {
     if (!chapter.value?.nextChapter) return;
     router.push(`/${provider.id}/manga/${mangaId}/read/${chapter.value.nextChapter}?lang=${language}`);
-    setTimeout(() => router.go(0), 1);
+    setTimeout(() => router.go(0), 100);
 }
 
 function JumpToChapter(chap: ChapterInfo) {
     router.push(`/${provider.id}/manga/${mangaId}/read/${chap.id}?lang=${language}`);
-    setTimeout(() => router.go(0), 1);
+    setTimeout(() => router.go(0), 100);
 }
 
 async function LoadChaptersData() {
@@ -148,13 +148,37 @@ onUnmounted(() => {
                 <span class="text-sm">{{ chapter.title || `#${chapter.index}` }}</span>
                 <MangaProviderBadge :provider="chapter.provider" class="ml-auto" />
             </div>
+            <div v-else-if="error" class="flex items-center gap-1">
+                <MaterialIcon icon="error" />
+                Load Failed
+            </div>
             <FwbSpinner color="white" size="6" v-else />
+        </div>
+        <div class="flex w-full p-0.5 gap-1 items-center bg-yellow-300 text-white backdrop-blur bg-opacity-80" v-if="chapter?.imageCacheLength!">
+            <div class="text-xs flex gap-1 items-center w-full" v-if="chapter">
+                <MaterialIcon class="text-xs" icon="error" />
+                Images from this provider are cached for up to {{ Math.round(chapter.imageCacheLength / 86400) }} days and may not be the most up-to-date.
+            </div>
         </div>
     </div>
     <div v-if="loaded && !error">
         <div @click="hideTopbar = !hideTopbar" class="flex flex-col">
             <p class="opacity-0">a</p>
             <img v-for="src of images" :data-src="src" class="lazyload" @load="++loadedImages">
+        </div>
+    </div>
+    <div v-if="error" class="flex w-full h-[100vh] items-center justify-center">
+        <div class="border rounded p-4 border-red-500 mx-4 flex flex-col gap-2">
+            <h1 class="text-xl font-bold text-red-500">There was an error.</h1>
+            <p>
+                Failed to load chapter. There may be more information in the console.
+            </p>
+            <div class="flex gap-2">
+                <Button severity="secondary" @click="router.go(0)">
+                    <MaterialIcon icon="refresh" />
+                    Retry
+                </Button>
+            </div>
         </div>
     </div>
     <div class="fixed flex flex-col w-full bottom-0 z-10 backdrop-blur backdrop-blur bg-opacity-80 bg-gray-900 h-50 transition-transform duration-200 ease-in" :class="[{ 'bottombar-collapsed': hideTopbar }]">
