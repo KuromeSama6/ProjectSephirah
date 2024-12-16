@@ -142,6 +142,18 @@ public class JsonWrapper implements IJsonSerializable {
         return ret;
     }
 
+    public List<JsonWrapper> GetObjectList(String path) {
+        List<JsonWrapper> ret = new ArrayList<>();
+        JsonNode node = ResolvePath(path);
+        if (node == null || !node.isArray()) return ret;
+
+        for (JsonNode jsonElement : node) {
+            ret.add(new JsonWrapper(jsonElement));
+        }
+
+        return ret;
+    }
+
     public ArrayNode GetList(String path) {
         JsonNode node = ResolvePath(path);
         return (node != null && node.isArray()) ? (ArrayNode)node : null;

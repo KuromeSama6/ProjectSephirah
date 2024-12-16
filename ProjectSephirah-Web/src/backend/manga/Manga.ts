@@ -8,6 +8,7 @@ export interface MangaInfo {
     title: string;
     author: string;
     coverUrl: string;
+    contentRating?: MangaContentRating;
 }
 
 export interface ChapterInfo {
@@ -15,7 +16,7 @@ export interface ChapterInfo {
     id: string;
     index?: number;
     title?: string;
-    date: Date;
+    date?: Date;
 }
 
 export interface ChapterDetails extends ChapterInfo {
@@ -53,5 +54,12 @@ export enum MangaStatus {
     SINGLE,
     TERMINATED,
     DMCA_TAKEDOWN,
-    UNKNOWN
+    UNKNOWN,
+    PAUSED
+}
+
+export enum MangaContentRating {
+    GENERAL,
+    EROTICA,
+    ECCHI
 }

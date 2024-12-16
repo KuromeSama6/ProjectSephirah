@@ -1,5 +1,6 @@
 package moe.protasis.sephirah.util;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.experimental.UtilityClass;
 import moe.protasis.sephirah.exception.provider.ProviderConnectionException;
 import okhttp3.OkHttpClient;
@@ -21,6 +22,14 @@ public class ProviderUtil {
     }
 
 
-    public record ProviderRequestResponseString(Response response, String body) { }
+    public record ProviderRequestResponseString(Response response, String body) {
+        public JsonWrapper AsJson() {
+            try {
+                return new JsonWrapper(body);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
     public record ProviderRequestResponseBytes(Response response, byte[] body) { }
 }

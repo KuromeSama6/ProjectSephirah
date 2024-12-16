@@ -159,6 +159,7 @@ export default class MangaProviderCopyManga implements MangaProvider {
             title: data.chapter.name,
             nextChapter: data.chapter.next,
             prevChapter: data.chapter.prev,
+            imageCacheLength: 0,
 
             images: () => this.GetChapterImages(mangaId, chapterId, language),
         };

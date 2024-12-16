@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { MangaInfo } from "../../backend/manga/Manga.ts";
+import { MangaContentRating, MangaInfo } from "../../backend/manga/Manga.ts";
 import MangaProviderBadge from "../common/provider/MangaProviderBadge.vue";
 import MaterialIcon from "../common/util/MaterialIcon.vue";
 import { computed } from "vue";
@@ -14,8 +14,13 @@ const props = defineProps<{
 const router = useRouter();
 const settings = useSettingsStore();
 
-const isEcchi = props.manga.provider.info.hentaiDedicated;
+const isEcchi = props.manga.provider.info.hentaiDedicated || props.manga.contentRating == MangaContentRating.ECCHI;
+const isErotica = isEcchi || props.manga.contentRating == MangaContentRating.EROTICA;
 const applyNsfwFilter = computed(() => props.nsfwFilter && isEcchi);
+
+const emit = defineEmits<{
+    (event: "click"): void;
+}>();
 
 </script>
 
@@ -25,6 +30,10 @@ const applyNsfwFilter = computed(() => props.nsfwFilter && isEcchi);
         <div class="bg-red-700 absolute top-1 left-1 z-10 rounded-sm px-0.5 flex text-sm items-center bg-opacity-90 text-white" v-if="isEcchi">
             <MaterialIcon icon="warning" class="text-sm" />
             H
+        </div>
+        <div class="bg-yellow-400 absolute top-1 left-1 z-10 rounded-sm px-0.5 flex text-sm items-center bg-opacity-90 text-white" v-else-if="isErotica">
+            <MaterialIcon icon="warning" class="text-sm" />
+            E
         </div>
         <img class="object-cover rounded-t-lg h-full w-16 lg:w-32 rounded-none rounded-s-lg" :class="{
             'grayscale': applyNsfwFilter,
@@ -41,7 +50,7 @@ const applyNsfwFilter = computed(() => props.nsfwFilter && isEcchi);
             <p class="font-normal text-gray-400">{{ manga.author }}</p>
         </div>
         <div class="flex flex-col ml-auto px-2 gap-2">
-            <Button outlined class="h-7 lg:h-auto">
+            <Button outlined class="h-7 lg:h-auto" @click="emit('click')">
                 <MaterialIcon icon="import_contacts" />
                 Read
             </Button>

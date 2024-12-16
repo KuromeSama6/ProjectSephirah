@@ -25,4 +25,5 @@ public class MangaDetails extends MangaInfo {
     private String latestChapter;
     private String latestUpdate;
     private MangaChapterData chapters;
+    private MangaContentRating contentRating;
 }

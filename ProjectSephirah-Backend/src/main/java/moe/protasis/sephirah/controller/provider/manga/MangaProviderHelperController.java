@@ -1,6 +1,8 @@
-package moe.protasis.sephirah.controller.provider;
+package moe.protasis.sephirah.controller.provider.manga;
 
 import jakarta.websocket.server.PathParam;
+import moe.protasis.sephirah.exception.provider.ProviderConnectionException;
+import moe.protasis.sephirah.exception.provider.ProviderRequestException;
 import moe.protasis.sephirah.service.MangaProviderService;
 import moe.protasis.sephirah.util.JsonWrapper;
 import okhttp3.OkHttpClient;
@@ -13,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.concurrent.TimeUnit;
 
@@ -39,6 +40,28 @@ public class MangaProviderHelperController {
 
             // most manga updates weekly, so 6 days
             headers.setCacheControl(CacheControl.maxAge(6, TimeUnit.DAYS).cachePublic().immutable());
+
+            return new ResponseEntity<>(res.body().bytes(), headers, HttpStatus.OK);
+
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @GetMapping(value = "/mangadex/proxy/image", consumes = "*/*", produces = "image/png")
+    private ResponseEntity<byte[]> ProxyMangadexImage(@PathParam("uri") String uri) {
+        var req = new Request.Builder()
+                .get()
+                .header("Referer", "https://mangadex.org")
+                .header("Origin", "https://mangadex.org")
+                .url("https://mangadex.org" + uri)
+                .build();
+
+        try (var res = client.newCall(req).execute()) {
+            HttpHeaders headers = new HttpHeaders();
+            headers.set(HttpHeaders.CONTENT_TYPE, "image/png");
+
+            headers.setCacheControl(CacheControl.maxAge(14, TimeUnit.DAYS).cachePublic().immutable());
 
             return new ResponseEntity<>(res.body().bytes(), headers, HttpStatus.OK);
 

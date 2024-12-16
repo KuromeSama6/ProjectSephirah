@@ -23,7 +23,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -62,7 +61,7 @@ public class MangaProvider_ManHuaGui implements IProxyMangaProvider {
     }
 
     @Override
-    public MangaInfo[] Search(OkHttpClient client, String kw) {
+    public MangaInfo[] Search(OkHttpClient client, String kw, String language) {
         var req = GetRequestBuilder("/s/%s.html".formatted(URLEncoder.encode(kw.replace(" ", ""), StandardCharsets.UTF_8)))
                 .build();
         var res = ProviderUtil.SendProviderRequestString(client, req);

@@ -6,5 +6,6 @@ public enum MangaStatus {
     SINGLE,
     TERMINATED,
     DMCA_TAKEDOWN,
-    UNKNOWN;
+    UNKNOWN,
+    PAUSED;
 }

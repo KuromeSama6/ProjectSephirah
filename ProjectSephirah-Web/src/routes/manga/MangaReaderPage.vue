@@ -140,8 +140,9 @@ onUnmounted(() => {
 </script>
 
 <template>
+
     <div class="fixed w-full toolbar transition-transform duration-200 ease-in" :class="[{ 'topbar-collapsed': hideTopbar }]">
-        <div class="flex w-full p-2 gap-1 items-center bg-pink-500 text-white h-8 backdrop-blur bg-opacity-80">
+        <div class="flex w-full p-2 gap-1 items-center bg-pink-500 text-white min-h-8 backdrop-blur bg-opacity-80">
             <div class="text-lg flex gap-1 items-center w-full" v-if="chapter">
                 <b>{{ chapter.manga.title }}</b>
                 &middot;
@@ -161,8 +162,8 @@ onUnmounted(() => {
             </div>
         </div>
     </div>
-    <div v-if="loaded && !error">
-        <div @click="hideTopbar = !hideTopbar" class="flex flex-col">
+    <div v-if="loaded && !error" class="justify-center flex">
+        <div @click="hideTopbar = !hideTopbar" class="flex flex-col w-full lg:w-[45vw] md:w-[60vw] xl:w-[35vw]">
             <p class="opacity-0">a</p>
             <img v-for="src of images" :data-src="src" class="lazyload" @load="++loadedImages">
         </div>

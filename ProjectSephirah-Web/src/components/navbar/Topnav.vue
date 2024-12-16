@@ -6,10 +6,12 @@ import { useMangaReaderStore } from "../../stores/mangaReaderStore.ts";
 import { computed } from "vue";
 import { FwbSpinner } from "flowbite-vue";
 import MangaProviderBadge from "../common/provider/MangaProviderBadge.vue";
+import { useOverlaysStore } from "../../stores/overlaysStore.ts";
 
 const t = useI18n().t;
 const route = useRoute();
 const mangaReader = useMangaReaderStore();
+const overlays = useOverlaysStore();
 
 const currentChapter = computed(() => mangaReader.current.chapter);
 
@@ -25,7 +27,7 @@ const currentChapter = computed(() => mangaReader.current.chapter);
     <!--        </div>-->
     <!--        <FwbSpinner color="white" size="6" v-else />-->
     <!--    </div>-->
-    <div class="flex gap-2 py-4 lg:py-1 px-2 bg-primary-500 text-white" v-if="route.name != 'MangaReader'">
+    <div class="flex gap-2 py-4 lg:py-1 px-2 bg-primary-500 text-white items-center" v-if="route.name != 'MangaReader'">
         <div v-if="route.path == '/welcome'" class="m-auto">
             <p class="text-xl font-bold">Project Sephirah - Welcome</p>
         </div>
@@ -35,7 +37,7 @@ const currentChapter = computed(() => mangaReader.current.chapter);
                 <p class="text-xl font-bold hidden lg:block">Project Sephirah</p>
             </RouterLink>
         </div>
-        <div class="ml-auto flex gap-3 lg:gap-5 items-center" v-if="route.path != '/welcome'">
+        <div class="ml-auto gap-5 items-center hidden lg:flex" v-if="route.path != '/welcome'">
             <RouterLink to="/" class="flex gap-0.5">
                 <MaterialIcon icon="home" />
                 {{ t("component.common.topnav.option.home") }}
@@ -52,6 +54,13 @@ const currentChapter = computed(() => mangaReader.current.chapter);
                 <MaterialIcon icon="settings" />
                 Options
             </RouterLink>
+        </div>
+        <div class="ml-auto gap-2 items-center flex lg:hidden" v-if="route.path != '/welcome'">
+            <Button outlined @click="overlays.visibility.sidebarMenu = true">
+                <template #icon>
+                    <MaterialIcon icon="menu" />
+                </template>
+            </Button>
         </div>
     </div>
 </template>

@@ -2,7 +2,7 @@
 import { useRoute, useRouter } from "vue-router";
 import { useMangaProviderStore } from "../../stores/mangaProviderStore.ts";
 import { MangaProvider } from "../../backend/manga/MangaProvider.ts";
-import { ChapterInfo, MangaChapters, MangaDetails, MangaStatus } from "../../backend/manga/Manga.ts";
+import { ChapterInfo, MangaChapters, MangaContentRating, MangaDetails, MangaStatus } from "../../backend/manga/Manga.ts";
 import SkeletonBlock from "../../components/common/util/SkeletonBlock.vue";
 import { computed, inject, onMounted, ref } from "vue";
 import { useToast } from "primevue/usetoast";
@@ -111,9 +111,13 @@ onMounted(async () => {
                     <div class="flex gap-1 bg-opacity-70 bg-black p-0.5">
                         <MangaProviderBadge :provider="provider" />
                     </div>
-                    <div class="bg-red-700 rounded-sm px-0.5 flex text-md items-center text-white w-max bg-opacity-90" v-if="provider.info.hentaiDedicated">
+                    <div class="bg-red-700 rounded-sm px-0.5 flex text-md items-center text-white w-max bg-opacity-90" v-if="provider.info.hentaiDedicated || manga.contentRating == MangaContentRating.ECCHI">
                         <MaterialIcon icon="warning" class="text-md" />
                         H
+                    </div>
+                    <div class="bg-yellow-400 rounded-sm px-0.5 flex text-md items-center text-white w-max bg-opacity-70" v-else-if=" manga.contentRating == MangaContentRating.EROTICA">
+                        <MaterialIcon icon="warning" class="text-md" />
+                        E
                     </div>
                 </div>
                 <div class="flex flex-col gap-1 flex-auto">
@@ -125,9 +129,16 @@ onMounted(async () => {
 
             </div>
 
-            <div v-if="manga.status == MangaStatus.DMCA_TAKEDOWN" class="mt-2 flex items-center justify-center w-full text-red-500 gap-1 text-md border-red-500 border rounded-md p-2">
+            <div v-if="!chapters" class="flex gap-2 w-full mt-2 h-11 animate-pulse">
+                <SkeletonBlock class="flex-auto" />
+            </div>
+            <div v-else-if="manga.status == MangaStatus.DMCA_TAKEDOWN" class="mt-2 flex items-center justify-center w-full text-red-500 gap-1 text-md border-red-500 border rounded-md p-2">
                 <MaterialIcon icon="block" class="text-xl font-bold" />
                 This title is not available on this provider due to DMCA takedown and/or ongoing legal issues. Please check other providers.
+            </div>
+            <div v-else-if="chapters && chapters.groups.every(c => c.count == 0)" class="mt-2 flex items-center justify-center w-full text-yellow-300 gap-1 text-md border-yellow-300 border rounded-md p-2">
+                <MaterialIcon icon="hide_source" class="text-xl font-bold" />
+                This title has no chapters available on this provider with the currently selected language ({{ language }}). Please check other providers or your language settings.
             </div>
             <div class="flex gap-2 w-full mt-2" v-else>
                 <Button class="flex-auto" severity="primary" @click="ReadLatest" label="Read" v-if="isSingleChapter">

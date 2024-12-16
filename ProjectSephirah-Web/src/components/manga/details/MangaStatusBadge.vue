@@ -31,8 +31,8 @@ const props = defineProps<{
             <h1 class="text-sm text-red-500" v-if="manga.status == MangaStatus.DMCA_TAKEDOWN">DMCA Takedown</h1>
         </div>
         <p class="font-extrabold">&middot;</p>
-        <p v-if="typeof manga.latestChapter == 'string'">{{ manga.latestChapter }}</p>
-        <p v-else>#{{ (manga.latestChapter as ChapterInfo).index }}</p>
+        <p v-if="typeof manga.latestChapter == 'string'">{{ manga.latestChapter || "-" }}</p>
+        <p v-else>#{{ (manga.latestChapter as ChapterInfo).index || "-" }}</p>
         <p class="font-extrabold">&middot;</p>
         <p>{{ manga.latestUpdate.toLocaleDateString() }}</p>
     </div>

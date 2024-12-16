@@ -79,7 +79,7 @@ function StartReading(chap: ChapterInfo) {
                                     <span> {{ chap.title }} </span>
                                 </div>
                                 <div v-else>
-                                    <span> {{ chap.title }} </span>
+                                    <span> {{ chap.index }} </span>
                                 </div>
                             </Button>
                         </div>

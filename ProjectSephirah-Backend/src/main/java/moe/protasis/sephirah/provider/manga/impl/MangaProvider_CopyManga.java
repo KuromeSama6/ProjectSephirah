@@ -48,7 +48,7 @@ public class MangaProvider_CopyManga implements IProxyMangaProvider {
     }
 
     @Override
-    public MangaInfo[] Search(OkHttpClient client, String kw) {
+    public MangaInfo[] Search(OkHttpClient client, String kw, String language) {
         throw new FeatureNotImplementedException();
     }
 

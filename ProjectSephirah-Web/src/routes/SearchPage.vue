@@ -9,7 +9,7 @@ import SearchBarMain from "../components/common/search/SearchBarMain.vue";
 import { ProviderStatus } from "../backend/provider/Provider.ts";
 import { FwbSpinner } from "flowbite-vue";
 import { useMangaProviderStore } from "../stores/mangaProviderStore.ts";
-import { MangaDetails, MangaInfo } from "../backend/manga/Manga.ts";
+import { MangaDetails, MangaInfo, MangaChapters } from "../backend/manga/Manga.ts";
 import { MangaProvider } from "../backend/manga/MangaProvider.ts";
 import MangaTitleCard from "../components/search/MangaTitleCard.vue";
 import ProviderBadgeSmall from "../components/home/ProviderBadgeSmall.vue";
@@ -21,6 +21,8 @@ import SearchHFilterWarning from "../components/search/SearchHFilterWarning.vue"
 import SearchMangaList from "../components/search/SearchMangaList.vue";
 import { useSettingsStore } from "../stores/settingsStore.ts";
 import { SupportedLanguage } from "../backend/common/Language.ts";
+import ChapterSelectDialog from "../components/manga/details/ChapterSelectDialog.vue";
+import { useToast } from "primevue/usetoast";
 
 const router = useRouter();
 const route = useRoute();
@@ -28,6 +30,7 @@ const searchText = ref<string>(decodeURI(route.query.kw as string));
 var kw = decodeURI(route.query.kw as string);
 const providerStore = useMangaProviderStore();
 const settings = useSettingsStore();
+const toast = useToast();
 
 const expandedAccordions = ref<string[]>([]);
 
@@ -41,6 +44,10 @@ interface SearchResult {
     icon: string;
     colorClass?: string;
 }
+
+const chapterSelectVisible = ref(false);
+const selectedManga = ref<MangaInfo>();
+const loadedChapters = ref<MangaChapters>();
 
 const results = ref<Record<string, SearchResult>>({});
 const titles = computed((): MangaInfo[] => Object.values(results.value)
@@ -127,6 +134,7 @@ async function SearchSingle(provider: MangaProvider, language: SupportedLanguage
             warningText: "Network Error",
         });
         expandedAccordions.value.push("2");
+        console.error(error);
     }
 
 }
@@ -152,6 +160,29 @@ const orderedSearchResults = computed<MangaInfo[]>(() => {
 onMounted(async () => {
     BeginSearch();
 });
+
+async function ReadManga(manga: MangaInfo) {
+    chapterSelectVisible.value = true;
+    loadedChapters.value = undefined;
+    selectedManga.value = undefined;
+
+    const data = await manga.provider.GetMangaDetails(manga.id, settings.searchLangauge);
+    if (data == null) {
+        chapterSelectVisible.value = false;
+        toast.add({ severity: "error", summary: "Error", detail: "Failed to load manga details", closable: false, life: 3000 });
+        return;
+    }
+
+    const chapters = await data.chapters();
+    if (chapters == null) {
+        chapterSelectVisible.value = false;
+        toast.add({ severity: "error", summary: "Error", detail: "Failed to load manga chapters", closable: false, life: 3000 });
+        return;
+    }
+
+    loadedChapters.value = chapters;
+    selectedManga.value = manga;
+}
 
 </script>
 
@@ -194,7 +225,7 @@ onMounted(async () => {
                                     <RouterLink to="" class="text-pink-400 underline">Change reading language</RouterLink>
                                 </p>
                             </div>
-                            <SearchMangaList :kw="kw" :list="orderedSearchResults" />
+                            <SearchMangaList :kw="kw" :list="orderedSearchResults" @read="ReadManga" />
                         </AccordionContent>
                     </AccordionPanel>
                     <AccordionPanel value="4">
@@ -209,7 +240,7 @@ onMounted(async () => {
                                     These titles may be relevant to your search but are not as likely to be as the "Direct Hits" section. These titles may have been suggested to you by the provider based on your search query.
                                 </p>
                             </div>
-                            <SearchMangaList :kw="kw" :list="titles" :display-predicate="manga => !orderedSearchResults.includes(manga)" />
+                            <SearchMangaList :kw="kw" :list="titles" :display-predicate="manga => !orderedSearchResults.includes(manga)" @read="ReadManga" />
                         </AccordionContent>
                     </AccordionPanel>
                     <AccordionPanel value="1">
@@ -266,6 +297,8 @@ onMounted(async () => {
             </div>
         </div>
     </div>
+
+    <ChapterSelectDialog :chapters="loadedChapters" v-model:visible="chapterSelectVisible" @select="c => router.push(`/${c.provider.id}/manga/${selectedManga?.id}/read/${c.id}?lang=${settings.searchLangauge}`)" />
 </template>
 
 <style scoped>

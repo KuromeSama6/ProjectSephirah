@@ -4,7 +4,7 @@ import { onMounted } from "vue";
 import { useMangaProviderStore } from "./stores/mangaProviderStore.ts";
 import { useRoute } from "vue-router";
 import Components from "unplugin-vue-components/vite";
-import Overlays from "./components/common/overlay/Overlays.vue";
+import Overlays from "./components/overlays/Overlays.vue";
 
 const providerStore = useMangaProviderStore();
 const route = useRoute();

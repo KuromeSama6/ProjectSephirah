@@ -2,13 +2,17 @@ import { defineStore } from "pinia";
 import { ChapterInfo, MangaDetails } from "../backend/manga/Manga.ts";
 
 interface State {
-    visibility: {};
+    visibility: {
+        sidebarMenu: boolean;
+    };
     uiBlocked: boolean;
 }
 
 export const useOverlaysStore = defineStore("overlaysStore", {
     state: (): State => ({
-        visibility: {},
+        visibility: {
+            sidebarMenu: false,
+        },
         uiBlocked: false,
     }),
     actions: {},

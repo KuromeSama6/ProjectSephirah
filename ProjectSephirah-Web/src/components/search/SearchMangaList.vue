@@ -15,13 +15,17 @@ const coverFilteredTitles = computed(() => {
     return props.list.filter(c => c.provider.info.hentaiDedicated);
 });
 
+const emit = defineEmits<{
+    (event: "read", manga: MangaInfo): void;
+}>();
+
 </script>
 
 <template>
     <SearchHFilterWarning v-if="coverFilteredTitles.length > 0" />
     <div class="flex flex-col gap-2">
         <div v-for="manga of list">
-            <MangaTitleCard :manga="manga" :direct-match="FuzzySearchUtil.NormalizeString(manga.title) == kw" :nsfw-filter="true" v-if="!displayPredicate || displayPredicate(manga)" />
+            <MangaTitleCard :manga="manga" :direct-match="FuzzySearchUtil.NormalizeString(manga.title) == kw" :nsfw-filter="true" v-if="!displayPredicate || displayPredicate(manga)" @click="emit('read', manga)" />
         </div>
     </div>
 </template>

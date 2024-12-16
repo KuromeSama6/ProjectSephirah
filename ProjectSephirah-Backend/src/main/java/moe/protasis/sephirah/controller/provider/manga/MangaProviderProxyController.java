@@ -1,6 +1,5 @@
-package moe.protasis.sephirah.controller.provider;
+package moe.protasis.sephirah.controller.provider.manga;
 
-import jakarta.websocket.server.PathParam;
 import lombok.extern.slf4j.Slf4j;
 import moe.protasis.sephirah.exception.NotFoundException;
 import moe.protasis.sephirah.provider.manga.IProxyMangaProvider;
@@ -30,8 +29,8 @@ public class MangaProviderProxyController {
     }
 
     @GetMapping("/search")
-    public JsonWrapper SearchManga(@RequestParam String kw, IProxyMangaProvider provider) {
-        var ret = provider.Search(client, kw);
+    public JsonWrapper SearchManga(@RequestParam String kw, @RequestParam String lang, IProxyMangaProvider provider) {
+        var ret = provider.Search(client, kw, lang);
 
         return new JsonWrapper()
                 .Set("provider", provider.GetId())
@@ -39,8 +38,8 @@ public class MangaProviderProxyController {
     }
 
     @GetMapping("/manga/{id}")
-    public JsonWrapper GetMangaDetails(@PathVariable String id, IProxyMangaProvider provider, @PathParam("lang") String language) {
-        var ret = provider.GetMangaDetails(client, id, language);
+    public JsonWrapper GetMangaDetails(@PathVariable String id, IProxyMangaProvider provider, @RequestParam String lang) {
+        var ret = provider.GetMangaDetails(client, id, lang);
 
         return new JsonWrapper()
                 .Set("provider", provider.GetId())
@@ -52,9 +51,9 @@ public class MangaProviderProxyController {
             IProxyMangaProvider provider,
             @PathVariable String mangaId,
             @PathVariable String chapterId,
-            @PathParam("lang") String language
+            @RequestParam String lang
     ) {
-        var details = provider.GetChapterDetails(client, mangaId, chapterId, language);
+        var details = provider.GetChapterDetails(client, mangaId, chapterId, lang);
         return new JsonWrapper()
                 .Set("provider", provider.GetId())
                 .SetObject("details", details)
@@ -66,9 +65,9 @@ public class MangaProviderProxyController {
             IProxyMangaProvider provider,
             @PathVariable String mangaId,
             @PathVariable String chapterId,
-            @PathParam("lang") String language
+            @RequestParam String lang
     ) {
-        var images = provider.GetChapterImages(client, mangaId, chapterId, language);
+        var images = provider.GetChapterImages(client, mangaId, chapterId, lang);
         return new JsonWrapper()
                 .Set("provider", provider.GetId())
                 .Set("images", images)

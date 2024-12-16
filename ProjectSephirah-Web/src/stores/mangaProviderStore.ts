@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 import { MangaProvider } from "../backend/manga/MangaProvider.ts";
 import MangaProviderCopyManga from "../providers/manga/CopyManga.ts";
 import MangaProviderNHentai from "../providers/manga/NHentai.ts";
-import MangaProviderMangadex from "../providers/manga/Mangadex.ts";
+import MangaProviderMangadex, { MangaProviderMangadexProxied } from "../providers/manga/Mangadex.ts";
 import MangaProviderManganato from "../providers/manga/Manganato.ts";
 import MangaProviderDmzj from "../providers/manga/Dmzj.ts";
 import MangaProviderManhuagui from "../providers/manga/Manhuagui.ts";
@@ -20,7 +20,8 @@ const providerList: MangaProvider[] = [
     new MangaProviderCopyManga(),
     new MangaProviderManhuagui(),
     new MangaProviderNHentai(),
-    new MangaProviderMangadex(),
+    // new MangaProviderMangadex(),
+    new MangaProviderMangadexProxied(),
     new MangaProviderManganato(),
     new MangaProviderDmzj(),
     new MangaProviderPica(),

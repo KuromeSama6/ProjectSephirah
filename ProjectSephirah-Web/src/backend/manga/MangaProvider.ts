@@ -1,5 +1,5 @@
 import { Provider } from "../provider/Provider.ts";
-import { ChapterDetails, ChapterInfo, MangaDetails, MangaInfo, MangaStatus } from "./Manga.ts";
+import { ChapterDetails, ChapterInfo, MangaContentRating, MangaDetails, MangaInfo, MangaStatus } from "./Manga.ts";
 import { APIUtil } from "../api/APIUtil.ts";
 import { SupportedLanguage } from "../common/Language.ts";
 import axios from "axios";
@@ -29,7 +29,10 @@ export abstract class ProxiedMangaProvider implements MangaProvider {
     abstract readonly info: MangaProviderInfo;
 
     async Search(kw: string, language: SupportedLanguage): Promise<MangaInfo[] | null> {
-        const res = await APIUtil.SendRequest("get", `/api/provider/${this.id}/proxy/search?kw=${kw}`);
+        const res = await APIUtil.SendRequest("get", `/api/provider/${this.id}/proxy/search`, {}, {
+            kw: kw,
+            lang: language,
+        });
         if (!res.success) return null;
 
         const ret = res.data!.results as MangaInfo[];
@@ -55,6 +58,7 @@ export abstract class ProxiedMangaProvider implements MangaProvider {
             latestUpdate: new Date(data.latestUpdate),
             chapters: () => data.chapters,
             status: MangaStatus[data.status],
+            contentRating: MangaContentRating[data.contentRating],
         };
     }
 
