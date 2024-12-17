@@ -32,7 +32,7 @@ export class MangaProviderMangadexProxied extends ProxiedMangaProvider {
     readonly info = {
         name: "Mangadex",
         website: "https://mangadex.org",
-        hentaiDedicated: false,
+        isHentaiDedicated: false,
         primaryLanguage: "en" as SupportedLanguage,
         supportedSearchLanguages: ["en", "jp"] as SupportedLanguage[],
     };
@@ -60,7 +60,7 @@ export default class MangaProviderMangadex implements MangaProvider {
     readonly info = {
         name: "Mangadex",
         website: "https://mangadex.org",
-        hentaiDedicated: false,
+        isHentaiDedicated: false,
         primaryLanguage: "en" as SupportedLanguage,
         supportedSearchLanguages: ["en", "jp"] as SupportedLanguage[],
     };

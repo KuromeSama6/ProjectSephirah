@@ -9,7 +9,7 @@ export default class MangaProviderCopyManga implements MangaProvider {
     readonly info = {
         name: "拷贝漫画",
         website: "https://mangacopy.com",
-        hentaiDedicated: false,
+        isHentaiDedicated: false,
         primaryLanguage: "cn" as SupportedLanguage,
         supportedSearchLanguages: ["cn"] as SupportedLanguage[],
     };

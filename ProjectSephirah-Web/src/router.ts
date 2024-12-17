@@ -6,6 +6,7 @@ import Cookies from "js-cookie";
 import SearchPage from "./routes/SearchPage.vue";
 import MangaDetailsPage from "./routes/manga/MangaDetailsPage.vue";
 import MangaReaderPage from "./routes/manga/MangaReaderPage.vue";
+import CredentialsManagementPage from "./routes/CredentialsManagementPage.vue";
 
 const routes: RouteRecordRaw[] = [
     {
@@ -28,6 +29,10 @@ const routes: RouteRecordRaw[] = [
         path: "/:provider/manga/:mangaId/read/:chapterId",
         component: MangaReaderPage,
         name: "MangaReader",
+    },
+    {
+        path: "/credentials",
+        component: CredentialsManagementPage,
     },
 
     { path: "/:pathMatch(.*)*", name: "NotFound", component: NotFound },

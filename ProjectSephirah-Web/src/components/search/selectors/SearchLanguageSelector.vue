@@ -17,11 +17,11 @@ const options: Option[] = SupportedLanguages.map((c): Option => ({
 
 const value = computed<Option>({
     get: (): Option => ({
-        label: (settings.searchLangauge as String).toUpperCase(),
-        value: settings.searchLangauge,
+        label: (settings.search.language as String).toUpperCase(),
+        value: settings.search.language,
     }),
     set(value: Option) {
-        settings.searchLangauge = value.value;
+        settings.search.language = value.value;
         settings.Save();
     },
 });

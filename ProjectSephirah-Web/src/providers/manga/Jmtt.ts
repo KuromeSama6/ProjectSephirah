@@ -8,7 +8,7 @@ export default class MangaProviderJmtt implements MangaProvider {
     readonly info = {
         name: "禁漫",
         website: "https://18comic.vip/",
-        hentaiDedicated: true,
+        isHentaiDedicated: true,
         primaryLanguage: "cn" as SupportedLanguage,
         supportedSearchLanguages: ["cn"] as SupportedLanguage[],
     };

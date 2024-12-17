@@ -20,6 +20,11 @@ const options: Option[] = [
         icon: "home",
         action: () => router.push("/"),
     },
+    {
+        label: "Credentials",
+        icon: "key",
+        action: () => router.push("/credentials"),
+    },
 ];
 
 </script>
@@ -27,7 +32,7 @@ const options: Option[] = [
 <template>
     <Drawer v-model:visible="overlays.visibility.sidebarMenu" position="right" header="Menu" style="width: 50vw">
         <div class="flex flex-col">
-            <Button v-for="option of options" :severity="option.severity || 'secondary'" variant="text">
+            <Button v-for="option of options" :severity="option.severity || 'secondary'" variant="text" @click="option.action(); overlays.visibility.sidebarMenu = false;">
                 <div class="content-start items-center w-full flex gap-1">
                     <MaterialIcon :icon="option.icon" />
                     {{ option.label }}

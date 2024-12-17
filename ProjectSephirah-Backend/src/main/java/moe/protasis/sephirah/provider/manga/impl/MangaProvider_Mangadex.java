@@ -1,24 +1,21 @@
 package moe.protasis.sephirah.provider.manga.impl;
 
 import lombok.extern.slf4j.Slf4j;
+import moe.protasis.sephirah.data.cache.CachedEntity;
 import moe.protasis.sephirah.data.manga.*;
 import moe.protasis.sephirah.exception.FeatureNotImplementedException;
 import moe.protasis.sephirah.exception.provider.ProviderNotAvailableException;
 import moe.protasis.sephirah.exception.provider.ProviderRequestException;
 import moe.protasis.sephirah.provider.manga.IProxyMangaProvider;
 import moe.protasis.sephirah.provider.manga.mangadex.MangadexEntity;
-import moe.protasis.sephirah.util.JsonWrapper;
 import moe.protasis.sephirah.util.ProviderUtil;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import org.joda.time.Duration;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.*;
 
 @Slf4j
 public class MangaProvider_Mangadex implements IProxyMangaProvider {
@@ -50,10 +47,10 @@ public class MangaProvider_Mangadex implements IProxyMangaProvider {
 
     @Override
     public MangaInfo[] Search(OkHttpClient client, String kw, String lang) {
-        var langauge = GetMappedLanguageCode(lang);
+        var language = GetMappedLanguageCode(lang);
         var req = GetRequestBuilder("/manga?title=%s&limit=20&contentRating[]=safe&contentRating[]=suggestive&contentRating[]=erotica&includes[]=cover_art&availableTranslatedLanguage[]=%s&hasAvailableChapters=true&order[relevance]=desc".formatted(
                 URLEncoder.encode(kw, StandardCharsets.UTF_8),
-                langauge
+                language
         )).build();
 //        log.info(req.url().toString());
 
@@ -72,7 +69,7 @@ public class MangaProvider_Mangadex implements IProxyMangaProvider {
 
         List<MangaInfo> ret = new ArrayList<>();
         for (var entity : entities) {
-            ret.add(GetMangaInfo(entity, langauge));
+            ret.add(GetMangaInfo(entity, language));
         }
 
         return ret.toArray(new MangaInfo[0]);
@@ -206,7 +203,7 @@ public class MangaProvider_Mangadex implements IProxyMangaProvider {
         }
 
         return MangaChapterData.builder()
-                .groups(new ArrayList<>(groups.values()))
+                .groups(groups.values().stream().sorted(Comparator.comparingInt(ChapterGroup::getCount).reversed()).toList())
                 .build();
     }
 

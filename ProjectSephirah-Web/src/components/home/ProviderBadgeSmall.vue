@@ -14,7 +14,7 @@ const providerStore = useMangaProviderStore();
     <ToggleButton v-model="selected" on-label="" off-label="" :disabled="!providerStore.ProviderAvailable(provider)">
         <template #icon>
             <Avatar :image="`/assets/images/providerIcons/${provider.id}.ico`" />
-            <span class="text-red-500" v-if="provider.info.hentaiDedicated">[H]</span>
+            <span class="text-red-500" v-if="provider.info.isHentaiDedicated">[H]</span>
             <span>{{ provider.info.name }}</span>
         </template>
     </ToggleButton>

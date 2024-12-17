@@ -12,7 +12,7 @@ const props = defineProps<{
 }>();
 
 const coverFilteredTitles = computed(() => {
-    return props.list.filter(c => c.provider.info.hentaiDedicated);
+    return props.list.filter(c => c.provider.info.isHentaiDedicated);
 });
 
 const emit = defineEmits<{

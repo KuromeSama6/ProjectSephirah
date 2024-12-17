@@ -1,9 +1,6 @@
 package moe.protasis.sephirah.data.manga;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +8,7 @@ import java.util.List;
 @Data
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class MangaChapterData {
     private List<ChapterGroup> groups = new ArrayList<>();
 

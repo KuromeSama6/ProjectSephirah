@@ -2,18 +2,21 @@ package moe.protasis.sephirah.provider.manga.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
+import moe.protasis.sephirah.data.cache.CachedEntity;
 import moe.protasis.sephirah.data.manga.*;
 import moe.protasis.sephirah.exception.FeatureNotImplementedException;
 import moe.protasis.sephirah.exception.NotFoundException;
 import moe.protasis.sephirah.exception.provider.ProviderNotAvailableException;
 import moe.protasis.sephirah.exception.provider.ProviderRequestException;
 import moe.protasis.sephirah.provider.manga.IProxyMangaProvider;
+import moe.protasis.sephirah.service.MangaProviderService;
 import moe.protasis.sephirah.util.JsonWrapper;
 import moe.protasis.sephirah.util.LZString;
 import moe.protasis.sephirah.util.ProviderUtil;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import org.graalvm.polyglot.Context;
+import org.joda.time.Duration;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -147,7 +150,11 @@ public class MangaProvider_ManHuaGui implements IProxyMangaProvider {
 
     @Override
     public ChapterDetails GetChapterDetails(OkHttpClient client, String mangaId, String chapterId, String language) {
-        MangaDetails mangaDetails = GetMangaDetails(client, mangaId, language);
+        var details = MangaProviderService.getInstance().GetMangaDetails(this, mangaId, language);
+        if (details == null) {
+            throw new NotFoundException();
+        }
+        var mangaDetails = details.entity();
 
         var req = GetRequestBuilder("/comic/%s/%s.html".formatted(mangaId, chapterId))
                 .build();

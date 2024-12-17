@@ -8,7 +8,7 @@ export default class MangaProviderManganato implements MangaProvider {
     readonly info = {
         name: "Manganato",
         website: "https://manganato.com",
-        hentaiDedicated: false,
+        isHentaiDedicated: false,
         primaryLanguage: "en" as SupportedLanguage,
         supportedSearchLanguages: ["en"] as SupportedLanguage[],
     };

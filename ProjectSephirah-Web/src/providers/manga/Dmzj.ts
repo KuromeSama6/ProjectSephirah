@@ -8,7 +8,7 @@ export default class MangaProviderDmzj implements MangaProvider {
     readonly info = {
         name: "动漫之家",
         website: "https://www.idmzj.com/",
-        hentaiDedicated: false,
+        isHentaiDedicated: false,
         primaryLanguage: "cn" as SupportedLanguage,
         supportedSearchLanguages: ["cn"] as SupportedLanguage[],
     };

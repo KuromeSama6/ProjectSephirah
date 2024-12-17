@@ -5,7 +5,7 @@ import HomeOptionsDropdown from "../components/home/HomeOptionsDropdown.vue";
 import HomeMangaProviderStatusCheck from "../components/home/MangaProviderStatusCheck.vue";
 import { useRoute, useRouter } from "vue-router";
 import { computed, onMounted, ref } from "vue";
-import SearchBarMain from "../components/common/search/SearchBarMain.vue";
+import SearchBarMain from "../components/search/SearchBarMain.vue";
 import { ProviderStatus } from "../backend/provider/Provider.ts";
 import { FwbSpinner } from "flowbite-vue";
 import { useMangaProviderStore } from "../stores/mangaProviderStore.ts";
@@ -19,10 +19,11 @@ import { FuzzySearchUtil } from "../backend/util/FuzzySearchUtil.ts";
 import { sify } from "chinese-conv";
 import SearchHFilterWarning from "../components/search/SearchHFilterWarning.vue";
 import SearchMangaList from "../components/search/SearchMangaList.vue";
-import { useSettingsStore } from "../stores/settingsStore.ts";
+import { ProviderContentType, useSettingsStore } from "../stores/settingsStore.ts";
 import { SupportedLanguage } from "../backend/common/Language.ts";
 import ChapterSelectDialog from "../components/manga/details/ChapterSelectDialog.vue";
 import { useToast } from "primevue/usetoast";
+import { useAuthenticationStore } from "../stores/authenticationStore.ts";
 
 const router = useRouter();
 const route = useRoute();
@@ -31,6 +32,7 @@ var kw = decodeURI(route.query.kw as string);
 const providerStore = useMangaProviderStore();
 const settings = useSettingsStore();
 const toast = useToast();
+const auth = useAuthenticationStore();
 
 const expandedAccordions = ref<string[]>([]);
 
@@ -61,7 +63,9 @@ const providerErrors = computed(() => Object.values(results.value)
     .filter(c => c.error));
 
 function BeginSearch() {
-    const searchLanguage = settings.searchLangauge;
+    const searchLanguage = settings.search.language;
+    const contentFilter = settings.search.providerContentFilter;
+
     kw = searchText.value;
     if (kw === "") return;
 
@@ -84,6 +88,28 @@ function BeginSearch() {
             continue;
         }
 
+        if (contentFilter == ProviderContentType.SAFE_ONLY && provider.info.isHentaiDedicated || contentFilter == ProviderContentType.H_ONLY && !provider.info.isHentaiDedicated) {
+            results.value[provider.id] = ({
+                provider: provider,
+                error: false,
+                icon: "visibility_off",
+                warningText: "Content Filtered",
+            });
+            expandedAccordions.value.push("1");
+            continue;
+        }
+
+        if (provider.auth && !auth.IsAuthenticated(provider)) {
+            results.value[provider.id] = ({
+                provider: provider,
+                error: false,
+                colorClass: "text-orange-400",
+                icon: "key_off",
+                warningText: "Authentication Required",
+            });
+            expandedAccordions.value.push("1");
+            continue;
+        }
         SearchSingle(provider, searchLanguage);
     }
 }
@@ -166,7 +192,7 @@ async function ReadManga(manga: MangaInfo) {
     loadedChapters.value = undefined;
     selectedManga.value = undefined;
 
-    const data = await manga.provider.GetMangaDetails(manga.id, settings.searchLangauge);
+    const data = await manga.provider.GetMangaDetails(manga.id, settings.search.language);
     if (data == null) {
         chapterSelectVisible.value = false;
         toast.add({ severity: "error", summary: "Error", detail: "Failed to load manga details", closable: false, life: 3000 });
@@ -298,7 +324,7 @@ async function ReadManga(manga: MangaInfo) {
         </div>
     </div>
 
-    <ChapterSelectDialog :chapters="loadedChapters" v-model:visible="chapterSelectVisible" @select="c => router.push(`/${c.provider.id}/manga/${selectedManga?.id}/read/${c.id}?lang=${settings.searchLangauge}`)" />
+    <ChapterSelectDialog :chapters="loadedChapters" v-model:visible="chapterSelectVisible" @select="c => router.push(`/${c.provider.id}/manga/${selectedManga?.id}/read/${c.id}?lang=${settings.search.language}`)" />
 </template>
 
 <style scoped>

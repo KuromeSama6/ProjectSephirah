@@ -11,7 +11,7 @@ export default class MangaProviderManhuagui extends ProxiedMangaProvider {
     readonly info = {
         name: "看漫画",
         website: "https://www.manhuagui.com/",
-        hentaiDedicated: false,
+        isHentaiDedicated: false,
         primaryLanguage: "cn" as SupportedLanguage,
         supportedSearchLanguages: ["cn"] as SupportedLanguage[],
     };

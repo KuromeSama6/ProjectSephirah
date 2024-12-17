@@ -57,12 +57,12 @@ function SelectChapter() {
 function ReadLatest() {
     if (!chapters.value) return;
     StartReading(chapters.value.groups[0].chapters.slice().reverse()[0]);
-    if (route.name == "MangaReader") setTimeout(() => router.go(0), 100);
+    if (route.name == "MangaReader") setTimeout(() => window.location.reload(), 100);
 }
 
 function StartReading(chap: ChapterInfo) {
     router.push(`/${provider.id}/manga/${mangaId}/read/${chap.id}?lang=${language}`);
-    if (route.name == "MangaReader") setTimeout(() => router.go(0), 100);
+    if (route.name == "MangaReader") setTimeout(() => window.location.reload(), 100);
 }
 
 onMounted(async () => {
@@ -111,7 +111,7 @@ onMounted(async () => {
                     <div class="flex gap-1 bg-opacity-70 bg-black p-0.5">
                         <MangaProviderBadge :provider="provider" />
                     </div>
-                    <div class="bg-red-700 rounded-sm px-0.5 flex text-md items-center text-white w-max bg-opacity-90" v-if="provider.info.hentaiDedicated || manga.contentRating == MangaContentRating.ECCHI">
+                    <div class="bg-red-700 rounded-sm px-0.5 flex text-md items-center text-white w-max bg-opacity-90" v-if="provider.info.isHentaiDedicated || manga.contentRating == MangaContentRating.ECCHI">
                         <MaterialIcon icon="warning" class="text-md" />
                         H
                     </div>

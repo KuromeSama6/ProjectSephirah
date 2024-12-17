@@ -46,6 +46,10 @@ const currentChapter = computed(() => mangaReader.current.chapter);
                 <MaterialIcon icon="deployed_code" />
                 Providers
             </RouterLink>
+            <RouterLink to="/credentials" class="flex gap-0.5">
+                <MaterialIcon icon="key" />
+                Credentials
+            </RouterLink>
             <RouterLink to="" class="flex gap-0.5">
                 <MaterialIcon icon="shelf_position" />
                 Bookshelf

@@ -8,7 +8,7 @@ export default class MangaProviderNHentai implements MangaProvider {
     readonly info = {
         name: "nhentai",
         website: "https://nhentai.net",
-        hentaiDedicated: true,
+        isHentaiDedicated: true,
         primaryLanguage: "en" as SupportedLanguage,
         supportedSearchLanguages: ["en", "jp"] as SupportedLanguage[],
     };

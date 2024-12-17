@@ -3,6 +3,7 @@ package moe.protasis.sephirah.controller.provider.manga;
 import lombok.extern.slf4j.Slf4j;
 import moe.protasis.sephirah.exception.NotFoundException;
 import moe.protasis.sephirah.provider.manga.IProxyMangaProvider;
+import moe.protasis.sephirah.repository.CachedEntityService;
 import moe.protasis.sephirah.service.MangaProviderService;
 import moe.protasis.sephirah.util.JsonWrapper;
 import okhttp3.OkHttpClient;
@@ -17,6 +18,8 @@ public class MangaProviderProxyController {
     private OkHttpClient client;
     @Autowired
     private MangaProviderService providerService;
+    @Autowired
+    private CachedEntityService cacheService;
 
     @GetMapping("/status")
     public JsonWrapper GetStatus(@PathVariable String providerId) {
@@ -39,11 +42,12 @@ public class MangaProviderProxyController {
 
     @GetMapping("/manga/{id}")
     public JsonWrapper GetMangaDetails(@PathVariable String id, IProxyMangaProvider provider, @RequestParam String lang) {
-        var ret = provider.GetMangaDetails(client, id, lang);
+        var ret = providerService.GetMangaDetails(provider, id, lang);
 
         return new JsonWrapper()
                 .Set("provider", provider.GetId())
-                .SetObject("details", ret);
+                .SetObject("details", ret.entity())
+                .Set("cache", ret);
     }
 
     @GetMapping("/manga/{mangaId}/{chapterId}")
@@ -53,10 +57,11 @@ public class MangaProviderProxyController {
             @PathVariable String chapterId,
             @RequestParam String lang
     ) {
-        var details = provider.GetChapterDetails(client, mangaId, chapterId, lang);
+        var ret = providerService.GetChapterDetails(provider, mangaId, chapterId, lang);
         return new JsonWrapper()
                 .Set("provider", provider.GetId())
-                .SetObject("details", details)
+                .SetObject("details", ret.entity())
+                .Set("cache", ret )
                 .Set("image_cache_length", provider.GetImageCacheLength());
     }
 

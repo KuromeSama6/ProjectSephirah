@@ -14,7 +14,7 @@ const props = defineProps<{
 const router = useRouter();
 const settings = useSettingsStore();
 
-const isEcchi = props.manga.provider.info.hentaiDedicated || props.manga.contentRating == MangaContentRating.ECCHI;
+const isEcchi = props.manga.provider.info.isHentaiDedicated || props.manga.contentRating == MangaContentRating.ECCHI;
 const isErotica = isEcchi || props.manga.contentRating == MangaContentRating.EROTICA;
 const applyNsfwFilter = computed(() => props.nsfwFilter && isEcchi);
 
@@ -54,7 +54,7 @@ const emit = defineEmits<{
                 <MaterialIcon icon="import_contacts" />
                 Read
             </Button>
-            <Button outlined class="h-7 lg:h-auto" severity="info" @click="router.push(`/${manga.provider.id}/manga/${manga.id}/details?lang=${settings.searchLangauge}`)">
+            <Button outlined class="h-7 lg:h-auto" severity="info" @click="router.push(`/${manga.provider.id}/manga/${manga.id}/details?lang=${settings.search.language}`)">
                 <MaterialIcon icon="more_horiz" />
                 Details
             </Button>

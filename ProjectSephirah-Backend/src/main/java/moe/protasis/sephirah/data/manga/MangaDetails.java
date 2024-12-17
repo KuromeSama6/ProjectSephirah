@@ -2,6 +2,7 @@ package moe.protasis.sephirah.data.manga;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
@@ -12,6 +13,7 @@ import java.util.List;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
 public class MangaDetails extends MangaInfo {
     //    description:string;
 //    status:MangaStatus;

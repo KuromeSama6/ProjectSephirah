@@ -74,18 +74,22 @@ function ToggleList() {
 function ReadPrev() {
     if (!chapter.value?.prevChapter) return;
     router.push(`/${provider.id}/manga/${mangaId}/read/${chapter.value.prevChapter}?lang=${language}`);
-    setTimeout(() => router.go(0), 100);
+    setTimeout(() => window.location.reload(), 100);
 }
 
 function ReadNext() {
     if (!chapter.value?.nextChapter) return;
     router.push(`/${provider.id}/manga/${mangaId}/read/${chapter.value.nextChapter}?lang=${language}`);
-    setTimeout(() => router.go(0), 100);
+    setTimeout(() => window.location.reload(), 100);
 }
 
 function JumpToChapter(chap: ChapterInfo) {
     router.push(`/${provider.id}/manga/${mangaId}/read/${chap.id}?lang=${language}`);
-    setTimeout(() => router.go(0), 100);
+    setTimeout(() => window.location.reload(), 100);
+}
+
+function Reload() {
+    window.location.reload();
 }
 
 async function LoadChaptersData() {
@@ -155,7 +159,7 @@ onUnmounted(() => {
             </div>
             <FwbSpinner color="white" size="6" v-else />
         </div>
-        <div class="flex w-full p-0.5 gap-1 items-center bg-yellow-300 text-white backdrop-blur bg-opacity-80" v-if="chapter?.imageCacheLength!">
+        <div class="flex w-full p-0.5 gap-1 items-center bg-yellow-300 text-white backdrop-blur bg-opacity-80" v-if="chapter?.imageCacheLength! && 0">
             <div class="text-xs flex gap-1 items-center w-full" v-if="chapter">
                 <MaterialIcon class="text-xs" icon="error" />
                 Images from this provider are cached for up to {{ Math.round(chapter.imageCacheLength / 86400) }} days and may not be the most up-to-date.
@@ -165,7 +169,7 @@ onUnmounted(() => {
     <div v-if="loaded && !error" class="justify-center flex">
         <div @click="hideTopbar = !hideTopbar" class="flex flex-col w-full lg:w-[45vw] md:w-[60vw] xl:w-[35vw]">
             <p class="opacity-0">a</p>
-            <img v-for="src of images" :data-src="src" class="lazyload" @load="++loadedImages">
+            <img v-for="src of images" src="https://placehold.co/1441x2048/000/FFF?text=Image%20Loading&font=source-sans-pro" :data-src="src" class="lazyload" @load="++loadedImages">
         </div>
     </div>
     <div v-if="error" class="flex w-full h-[100vh] items-center justify-center">
@@ -175,7 +179,7 @@ onUnmounted(() => {
                 Failed to load chapter. There may be more information in the console.
             </p>
             <div class="flex gap-2">
-                <Button severity="secondary" @click="router.go(0)">
+                <Button severity="secondary" @click="Reload">
                     <MaterialIcon icon="refresh" />
                     Retry
                 </Button>

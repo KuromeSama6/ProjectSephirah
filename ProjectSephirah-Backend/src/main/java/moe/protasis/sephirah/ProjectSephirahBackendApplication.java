@@ -1,5 +1,6 @@
 package moe.protasis.sephirah;
 
+import moe.protasis.sephirah.data.cache.CachedEntity;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration;

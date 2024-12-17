@@ -1,21 +1,38 @@
 import { SupportedLanguage } from "../backend/common/Language.ts";
 import { defineStore } from "pinia";
 
-export interface GlobalSettings {
-    searchLangauge: SupportedLanguage;
+export enum ProviderContentType {
+    ALL = "All",
+    SAFE_ONLY = "Safe Only",
+    H_ONLY = "Hentai Only",
+}
+
+interface State {
+    legalTermsAccepted: boolean;
+    search: {
+        language: SupportedLanguage;
+        providerContentFilter: ProviderContentType;
+    };
     chapterSelectSortAscending: boolean;
 }
 
-const defaultSettings: GlobalSettings = {
-    searchLangauge: "en",
+const defaultSettings: State = {
+    legalTermsAccepted: false,
+    search: {
+        language: "en",
+        providerContentFilter: ProviderContentType.SAFE_ONLY,
+    },
     chapterSelectSortAscending: false,
 };
 
 export const useSettingsStore = defineStore("settings", {
-    state: (): GlobalSettings => {
+    state: (): State => {
         const config = localStorage.getItem("globalSettings");
         if (config) {
-            return JSON.parse(config);
+            return {
+                ...defaultSettings,
+                ...JSON.parse(config),
+            };
         } else {
             return defaultSettings;
         }

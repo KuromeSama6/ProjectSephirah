@@ -19,7 +19,7 @@ export interface MangaProvider extends Provider {
 export interface MangaProviderInfo {
     name: string;
     website: string;
-    hentaiDedicated: boolean;
+    isHentaiDedicated: boolean;
     primaryLanguage: SupportedLanguage;
     supportedSearchLanguages: Array<SupportedLanguage>;
 }
