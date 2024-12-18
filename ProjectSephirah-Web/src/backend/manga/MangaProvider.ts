@@ -1,5 +1,5 @@
-import { Provider } from "../provider/Provider.ts";
-import { ChapterDetails, ChapterInfo, MangaContentRating, MangaDetails, MangaInfo, MangaStatus } from "./Manga.ts";
+import { AuthenticationProvider, Provider } from "../provider/Provider.ts";
+import { ChapterDetails, ChapterGroup, ChapterImages, ChapterInfo, MangaContentRating, MangaDetails, MangaInfo, MangaStatus } from "./Manga.ts";
 import { APIUtil } from "../api/APIUtil.ts";
 import { SupportedLanguage } from "../common/Language.ts";
 import axios from "axios";
@@ -27,6 +27,7 @@ export interface MangaProviderInfo {
 export abstract class ProxiedMangaProvider implements MangaProvider {
     abstract readonly id: string;
     abstract readonly info: MangaProviderInfo;
+    readonly auth?: AuthenticationProvider;
 
     async Search(kw: string, language: SupportedLanguage): Promise<MangaInfo[] | null> {
         const res = await APIUtil.SendRequest("get", `/api/provider/${this.id}/proxy/search`, {}, {
@@ -56,7 +57,17 @@ export abstract class ProxiedMangaProvider implements MangaProvider {
             ...data,
             provider: this,
             latestUpdate: new Date(data.latestUpdate),
-            chapters: () => data.chapters,
+            chapters: () => ({
+                ...data.chapters,
+                provider: this,
+                groups: data.chapters.groups.map((group: ChapterGroup) => ({
+                    ...group,
+                    chapters: group.chapters.map((chapter: ChapterInfo) => ({
+                        ...chapter,
+                        provider: this,
+                    })),
+                })),
+            }),
             status: MangaStatus[data.status],
             contentRating: MangaContentRating[data.contentRating],
         };
@@ -78,7 +89,7 @@ export abstract class ProxiedMangaProvider implements MangaProvider {
         };
     }
 
-    async GetChapterImages(manga: string, chapter: string, language: SupportedLanguage): Promise<string[] | null> {
+    async GetChapterImages(manga: string, chapter: string, language: SupportedLanguage): Promise<ChapterImages | null> {
         const res = await APIUtil.SendRequest("get", `/api/provider/${this.id}/proxy/manga/${manga}/${chapter}/images?lang=${language}`);
         if (!res.success) return null;
 

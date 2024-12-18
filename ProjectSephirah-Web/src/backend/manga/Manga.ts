@@ -19,11 +19,23 @@ export interface ChapterInfo {
     date?: Date;
 }
 
+export interface ChapterImages {
+    links: string[];
+    extraData: any;
+    PostProcess?: (data: ImagePostProcessData) => Promise<string>;
+}
+
+export interface ImagePostProcessData {
+    imageBase64: string;
+    url: string;
+    originalSize: { width: number, height: number };
+}
+
 export interface ChapterDetails extends ChapterInfo {
     manga: MangaInfo;
     nextChapter?: string;
     prevChapter?: string;
-    images: LazyGet<string[] | null>;
+    images: LazyGet<ChapterImages | null>;
     imageCacheLength: number;
 }
 

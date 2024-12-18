@@ -2,7 +2,9 @@ package moe.protasis.sephirah.provider.manga.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import moe.protasis.sephirah.data.cache.ResultCacheOptions;
 import moe.protasis.sephirah.data.manga.ChapterDetails;
+import moe.protasis.sephirah.data.manga.ChapterImages;
 import moe.protasis.sephirah.data.manga.MangaDetails;
 import moe.protasis.sephirah.data.manga.MangaInfo;
 import moe.protasis.sephirah.exception.APIException;
@@ -14,6 +16,8 @@ import moe.protasis.sephirah.util.JsonWrapper;
 import moe.protasis.sephirah.util.ProviderUtil;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import org.apache.logging.log4j.message.ReusableMessage;
+import org.joda.time.Duration;
 import org.jsoup.Jsoup;
 
 import javax.crypto.Cipher;
@@ -53,12 +57,12 @@ public class MangaProvider_CopyManga implements IProxyMangaProvider {
     }
 
     @Override
-    public MangaDetails GetMangaDetails(OkHttpClient client, String id, String language) {
+    public ResultCacheOptions<MangaDetails> GetMangaDetails(OkHttpClient client, String id, String language) {
         throw new FeatureNotImplementedException();
     }
 
     @Override
-    public ChapterDetails GetChapterDetails(OkHttpClient client, String mangaId, String chapterId, String language) {
+    public ResultCacheOptions<ChapterDetails> GetChapterDetails(OkHttpClient client, String mangaId, String chapterId, String language) {
         throw new FeatureNotImplementedException();
     }
 
@@ -66,7 +70,7 @@ public class MangaProvider_CopyManga implements IProxyMangaProvider {
      * Huge thanks to <a href="https://blog.skyju.cc/post/copymanga-chapter-reverse-engineering/">juzeon</a> for figuring out how to decrypt the response!
      */
     @Override
-    public List<String> GetChapterImages(OkHttpClient client, String mangaId, String chapterId, String language) {
+    public ResultCacheOptions<ChapterImages> GetChapterImages(OkHttpClient client, String mangaId, String chapterId, String language) {
         var req = GetRequestBuilder("/comic/%s/chapter/%s".formatted(mangaId, chapterId))
                 .build();
         var res = ProviderUtil.SendProviderRequestString(client, req);
@@ -93,7 +97,7 @@ public class MangaProvider_CopyManga implements IProxyMangaProvider {
                 ret.add(json.GetString("url"));
             }
 
-            return ret;
+            return new ResultCacheOptions<>(ChapterImages.From(ret), Duration.ZERO);
 
         } catch (Exception e) {
             e.printStackTrace();

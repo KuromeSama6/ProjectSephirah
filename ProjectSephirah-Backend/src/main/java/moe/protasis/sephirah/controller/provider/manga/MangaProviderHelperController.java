@@ -1,10 +1,7 @@
 package moe.protasis.sephirah.controller.provider.manga;
 
 import jakarta.websocket.server.PathParam;
-import moe.protasis.sephirah.exception.provider.ProviderConnectionException;
-import moe.protasis.sephirah.exception.provider.ProviderRequestException;
-import moe.protasis.sephirah.service.MangaProviderService;
-import moe.protasis.sephirah.util.JsonWrapper;
+import moe.protasis.sephirah.service.ProviderService;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 @RequestMapping(value = "/api/provider", consumes = "application/json", produces = "application/json")
 public class MangaProviderHelperController {
     @Autowired
-    private MangaProviderService providerService;
+    private ProviderService providerService;
     @Autowired
     private OkHttpClient client;
 

@@ -24,7 +24,10 @@ export default class MangaProviderManhuagui extends ProxiedMangaProvider {
         return {
             ...data!,
             provider: this,
-            images: () => images.map((c: string) => SephirahAPI.BASE_URL + `/api/provider/manhuagui/proxy/image?uri=${encodeURIComponent(c)}`),
+            images: () => ({
+                links: images.links.map((c: string) => SephirahAPI.BASE_URL + `/api/provider/manhuagui/proxy/image?uri=${encodeURIComponent(c)}`),
+                extraData: {},
+            }),
         };
     }
 }

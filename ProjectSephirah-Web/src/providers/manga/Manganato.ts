@@ -6,7 +6,7 @@ import { SupportedLanguage } from "../../backend/common/Language.ts";
 export default class MangaProviderManganato implements MangaProvider {
     readonly id = "manganato";
     readonly info = {
-        name: "Manganato",
+        name: "Manganato (WIP)",
         website: "https://manganato.com",
         isHentaiDedicated: false,
         primaryLanguage: "en" as SupportedLanguage,

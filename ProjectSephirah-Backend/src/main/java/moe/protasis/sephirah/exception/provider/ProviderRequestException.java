@@ -9,6 +9,6 @@ public class ProviderRequestException extends APIException {
     }
 
     public ProviderRequestException(String message) {
-        super(61, 502, message);
+        super(502, 61, message);
     }
 }

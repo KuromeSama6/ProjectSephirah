@@ -57,15 +57,17 @@ function AgreeAndContinue() {
             <Divider />
             <h1 class="flex items-center gap-1">
                 <MaterialIcon icon="public" />
-                Information Disclosure Policy & Open-Source Statements
+                Information Handling Policy & Open-Source Statements
             </h1>
             <p class="text-gray-400">
                 Project Sephirah is composed of a frontend web application (the site you are viewing right now), as well as a backend API server. A "provider" is any external service or source (i.e. a manga viewing site like Mangadex) that Project Sephirah uses to provide its services. Project Sephirah does not host any media (including but not limited to images and videos) on its server; however, we may cache or store responses from providers that contains metadata to improve the performance of
                 the site.
             </p>
             <p class="text-gray-400">
-                The backend server is solely used to proxy requests to some providers that cannot be directly accessed by the frontend application directly (i.e. due to CORS restrictions). The backend server does not store any user data, and all requests are made anonymously. The backend server may cache responses from providers to improve the performance of the site. <span
-                class="text-white underline">We never send your credentials from providers anywhere, even the backend server.</span> We apologize if we are unable to add or implement a provider due to this limitation.
+                The backend server is solely used to proxy requests to some providers that cannot be directly accessed by the frontend application directly (i.e. due to CORS restrictions). The backend server does not store any user data, and all requests are made anonymously. The backend server may cache responses from providers to improve the performance of the site.
+            </p>
+            <p class="text-pink-400">
+                Sometimes, for specific providers, we will have to proxy authentication requests with your credentials through the backend server due to CORS restrictions. Such occasions will be clearly indicated on the Credentials Manager page. We will never store your credentials on our server. Your credentials will be encrypted with RSA before being sent to the backend server. <span class="underline font-bold">By continuing to use this site, you allow such requests to be made</span>
             </p>
             <p class="text-gray-400">
                 Project Sephirah operates on a Vue.js web app and a Spring Boot backend server, both of which are open-source projects. The source code for this project is available on GitHub.

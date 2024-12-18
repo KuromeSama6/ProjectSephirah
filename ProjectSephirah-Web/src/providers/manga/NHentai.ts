@@ -6,7 +6,7 @@ import { SupportedLanguage } from "../../backend/common/Language.ts";
 export default class MangaProviderNHentai implements MangaProvider {
     readonly id = "nhentai";
     readonly info = {
-        name: "nhentai",
+        name: "nhentai (WIP)",
         website: "https://nhentai.net",
         isHentaiDedicated: true,
         primaryLanguage: "en" as SupportedLanguage,

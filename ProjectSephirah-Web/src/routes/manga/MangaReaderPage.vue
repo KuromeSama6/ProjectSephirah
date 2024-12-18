@@ -4,7 +4,7 @@ import { useMangaProviderStore } from "../../stores/mangaProviderStore.ts";
 import { MangaProvider } from "../../backend/manga/MangaProvider.ts";
 import { computed, onMounted, onUnmounted, ref } from "vue";
 import { SupportedLanguage } from "../../backend/common/Language.ts";
-import { ChapterDetails, ChapterInfo, MangaChapters, MangaDetails } from "../../backend/manga/Manga.ts";
+import { ChapterDetails, ChapterImages, ChapterInfo, ImagePostProcessData, MangaChapters, MangaDetails } from "../../backend/manga/Manga.ts";
 import { useMangaReaderStore } from "../../stores/mangaReaderStore.ts";
 import MangaReaderToolbar from "../../components/manga/reader/MangaReaderToolbar.vue";
 import MangaProviderBadge from "../../components/common/provider/MangaProviderBadge.vue";
@@ -14,12 +14,15 @@ import { useToast } from "primevue/usetoast";
 import MockRouteWrapper from "../../components/common/util/MockRouteWrapper.vue";
 import MangaDetailsPage from "./MangaDetailsPage.vue";
 import MaterialIcon from "../../components/common/util/MaterialIcon.vue";
+import { useAuthenticationStore } from "../../stores/authenticationStore.ts";
+import LazyLoadedImage from "../../components/reader/LazyLoadedImage.vue";
 
 const router = useRouter();
 const route = useRoute();
 const providersStore = useMangaProviderStore();
 const mangaStore = useMangaReaderStore();
 const toast = useToast();
+const auth = useAuthenticationStore();
 
 const provider: MangaProvider = providersStore.GetProvider(decodeURI(route.params.provider as string));
 const mangaId = decodeURI(route.params.mangaId as string);
@@ -29,9 +32,10 @@ const language = route.query.lang as SupportedLanguage;
 const chapter = ref<ChapterDetails>();
 const loaded = ref(false);
 const error = ref(false);
-const images = ref<string[]>();
+const images = ref<ChapterImages>();
 const hideTopbar = ref(false);
 const loadedImages = ref(0);
+const authenticationWarningDismissed = ref(false);
 
 const chapterSelectVisible = ref(false);
 const mangaDetailsVisible = ref(false);
@@ -111,24 +115,30 @@ async function LoadChaptersData() {
 async function Load() {
     mangaStore.current.chapter = undefined;
 
-    // load details
-    const chapterDetails = await provider.GetChapterDetails(mangaId, chapterId, language);
-    if (chapterDetails == null) {
-        error.value = true;
-        return;
-    }
-    chapter.value = chapterDetails;
-    mangaStore.current.chapter = chapterDetails;
+    try {
+        // load details
+        const chapterDetails = await provider.GetChapterDetails(mangaId, chapterId, language);
+        if (chapterDetails == null) {
+            error.value = true;
+            return;
+        }
+        chapter.value = chapterDetails;
+        mangaStore.current.chapter = chapterDetails;
 
-    // images
-    const links = await chapterDetails.images();
-    if (links == null) {
-        error.value = true;
-        return;
-    }
+        // images
+        const links = await chapterDetails.images();
+        if (links == null) {
+            error.value = true;
+            return;
+        }
 
-    loaded.value = true;
-    images.value = links!;
+        loaded.value = true;
+        images.value = links!;
+
+    } catch (err: any) {
+        console.error(err);
+        error.value = true;
+    }
 }
 
 onMounted(() => {
@@ -165,11 +175,19 @@ onUnmounted(() => {
                 Images from this provider are cached for up to {{ Math.round(chapter.imageCacheLength / 86400) }} days and may not be the most up-to-date.
             </div>
         </div>
+        <div class="flex w-full p-0.5 gap-1 items-center bg-orange-400 text-white backdrop-blur bg-opacity-80" v-if="provider.auth && !auth.IsAuthenticated(provider) && !authenticationWarningDismissed && error">
+            <div class="text-sm flex gap-1 items-center w-full">
+                <MaterialIcon class="text-sm" icon="key_off" />
+                Not authenticated.
+                <RouterLink :to="`/credentials?open=${provider.id}`" class="underline">Authenticate</RouterLink>
+                <button class="underline" @click="authenticationWarningDismissed = true" v-if="!error">Dismiss</button>
+            </div>
+        </div>
     </div>
     <div v-if="loaded && !error" class="justify-center flex">
         <div @click="hideTopbar = !hideTopbar" class="flex flex-col w-full lg:w-[45vw] md:w-[60vw] xl:w-[35vw]">
             <p class="opacity-0">a</p>
-            <img v-for="src of images" src="https://placehold.co/1441x2048/000/FFF?text=Image%20Loading&font=source-sans-pro" :data-src="src" class="lazyload" @load="++loadedImages">
+            <LazyLoadedImage v-for="src of images?.links" placeholder="https://placehold.co/1441x2048/000/FFF?text=Image%20Loading&font=source-sans-pro" :src="src" @load="++loadedImages" :post-processor="images?.PostProcess" />
         </div>
     </div>
     <div v-if="error" class="flex w-full h-[100vh] items-center justify-center">
@@ -187,7 +205,7 @@ onUnmounted(() => {
         </div>
     </div>
     <div class="fixed flex flex-col w-full bottom-0 z-10 backdrop-blur backdrop-blur bg-opacity-80 bg-gray-900 h-50 transition-transform duration-200 ease-in" :class="[{ 'bottombar-collapsed': hideTopbar }]">
-        <div class="flex justify-center gap-2 w-full mt-2" v-if="GetScrollPercentage() >= 1 && loadedImages < images!.length">
+        <div class="flex justify-center gap-2 w-full mt-2" v-if="GetScrollPercentage() >= 1 && loadedImages < images!.links.length && 0">
             <FwbSpinner color="white" size="6" />
             <p>Loading more images</p>
         </div>

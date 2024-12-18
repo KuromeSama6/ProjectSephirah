@@ -14,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 public class ChapterDetails extends ChapterInfo {
     private MangaInfo manga;
-    private List<String> images;
+    private ChapterImages images;
     private String nextChapter;
     private String prevChapter;
 }

@@ -2,14 +2,14 @@ package moe.protasis.sephirah.provider.manga.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
-import moe.protasis.sephirah.data.cache.CachedEntity;
+import moe.protasis.sephirah.data.cache.ResultCacheOptions;
 import moe.protasis.sephirah.data.manga.*;
 import moe.protasis.sephirah.exception.FeatureNotImplementedException;
 import moe.protasis.sephirah.exception.NotFoundException;
 import moe.protasis.sephirah.exception.provider.ProviderNotAvailableException;
 import moe.protasis.sephirah.exception.provider.ProviderRequestException;
 import moe.protasis.sephirah.provider.manga.IProxyMangaProvider;
-import moe.protasis.sephirah.service.MangaProviderService;
+import moe.protasis.sephirah.service.ProviderService;
 import moe.protasis.sephirah.util.JsonWrapper;
 import moe.protasis.sephirah.util.LZString;
 import moe.protasis.sephirah.util.ProviderUtil;
@@ -84,7 +84,7 @@ public class MangaProvider_ManHuaGui implements IProxyMangaProvider {
     }
 
     @Override
-    public MangaDetails GetMangaDetails(OkHttpClient client, String id, String language) {
+    public ResultCacheOptions<MangaDetails> GetMangaDetails(OkHttpClient client, String id, String language) {
         var req = GetRequestBuilder("/comic/%s/".formatted(id))
                 .build();
         var res = ProviderUtil.SendProviderRequestString(client, req);
@@ -145,12 +145,12 @@ public class MangaProvider_ManHuaGui implements IProxyMangaProvider {
             ret.chapters(data.build());
         }
 
-        return ret.build();
+        return new ResultCacheOptions<>(ret.build(), Duration.standardDays(1));
     }
 
     @Override
-    public ChapterDetails GetChapterDetails(OkHttpClient client, String mangaId, String chapterId, String language) {
-        var details = MangaProviderService.getInstance().GetMangaDetails(this, mangaId, language);
+    public ResultCacheOptions<ChapterDetails> GetChapterDetails(OkHttpClient client, String mangaId, String chapterId, String language) {
+        var details = ProviderService.getInstance().GetMangaDetails(this, mangaId, language);
         if (details == null) {
             throw new NotFoundException();
         }
@@ -184,14 +184,9 @@ public class MangaProvider_ManHuaGui implements IProxyMangaProvider {
         ret.prevChapter(String.valueOf(chapterData.GetInt("prevId")));
 
         // images
-        ret.images(chapterData.GetList("images", String.class));
+        ret.images(ChapterImages.From(chapterData.GetList("images", String.class)));
 
-        return ret.build();
-    }
-
-    @Override
-    public List<String> GetChapterImages(OkHttpClient client, String manga, String chapterId, String language) {
-        throw new FeatureNotImplementedException();
+        return new ResultCacheOptions<>(ret.build(), Duration.standardDays(1));
     }
 
     private JsonWrapper DecryptChapterData(String javascriptText) {

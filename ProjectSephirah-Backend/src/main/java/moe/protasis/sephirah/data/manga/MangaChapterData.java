@@ -21,4 +21,10 @@ public class MangaChapterData {
                 .findFirst()
                 .orElse(null);
     }
+
+    public static MangaChapterData Single(MangaDetails manga) {
+        return MangaChapterData.builder()
+                .groups(List.of(ChapterGroup.Single(manga)))
+                .build();
+    }
 }

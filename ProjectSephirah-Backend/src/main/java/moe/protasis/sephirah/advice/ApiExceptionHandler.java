@@ -23,12 +23,12 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<?> OnBadRequestException(HttpMessageNotReadableException e) {
+        e.printStackTrace();
         return ResponseEntity.status(400).body(new StandardAPIResponse(7, "invalid request"));
     }
 
     @ExceptionHandler(ServletException.class)
     public ResponseEntity<?> OnServletException(ServletException e) {
-        log.warn(e.getMessage());
         return ResponseEntity.status(400).body(new StandardAPIResponse(8, "invalid request"));
     }
 

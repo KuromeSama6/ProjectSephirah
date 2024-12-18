@@ -6,6 +6,7 @@ import moe.protasis.sephirah.util.RandomStringGenerator;
 import moe.protasis.sephirah.util.UniqueIdGenerator;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
+import org.joda.time.ReadableDuration;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -19,14 +20,15 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class CachedEntity<T> {
     @Id
     private String id;
+    @Indexed(unique = true)
     private String path;
     private T entity;
     private DateTime created;
-    @Indexed(expireAfter = "0s")
+    @Indexed(expireAfterSeconds = 0)
     private DateTime expire;
     private String entityType;
 
-    public CachedEntity(T entity, String path, Duration expire) {
+    public CachedEntity(T entity, String path, ReadableDuration expire) {
         id = RandomStringGenerator.GenerateRandomSnowflake();
         this.path = path;
         this.expire = DateTime.now().plus(expire);

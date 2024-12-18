@@ -3,8 +3,9 @@ package moe.protasis.sephirah.resolver;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import moe.protasis.sephirah.exception.NotFoundException;
+import moe.protasis.sephirah.provider.IProxyProvider;
 import moe.protasis.sephirah.provider.manga.IProxyMangaProvider;
-import moe.protasis.sephirah.service.MangaProviderService;
+import moe.protasis.sephirah.service.ProviderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
@@ -18,13 +19,13 @@ import java.util.Map;
 
 @Slf4j
 @Component
-public class MangaProviderBodyResolver implements HandlerMethodArgumentResolver {
+public class ProviderBodyResolver implements HandlerMethodArgumentResolver {
     @Autowired
-    private MangaProviderService providerService;
+    private ProviderService providerService;
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
-        return parameter.getParameterType().equals(IProxyMangaProvider.class);
+        return IProxyProvider.class.isAssignableFrom(parameter.getParameterType());
     }
 
     @Override
@@ -34,11 +35,15 @@ public class MangaProviderBodyResolver implements HandlerMethodArgumentResolver 
 
         // Retrieve the specific path variable (replace "variableName" with the actual name)
         String providerId = pathVariables.get("providerId");
+//        log.info(providerId);
 
-        var provider = providerService.GetMangaProvider(providerId);
+        var provider = providerService.GetMangaProvider(providerId, IProxyProvider.class);
         if (provider == null)
             throw new NotFoundException("provider %s not found".formatted(providerId));
 
-        return provider;
+        if (!parameter.getParameterType().isAssignableFrom(provider.getClass()))
+            throw new NotFoundException("provider %s has invalid provider type".formatted(providerId));
+
+        return parameter.getParameterType().cast(provider);
     }
 }

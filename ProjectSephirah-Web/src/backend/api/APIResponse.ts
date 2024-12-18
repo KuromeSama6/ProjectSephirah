@@ -8,3 +8,9 @@ export interface APIResponse<T = any> {
     success: boolean;
     processed: boolean;
 }
+
+export interface AuthenticationKeyPair {
+    id: string;
+    publicKey: string;
+    expire: Date;
+}

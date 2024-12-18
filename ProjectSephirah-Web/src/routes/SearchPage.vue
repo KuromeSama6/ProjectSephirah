@@ -6,7 +6,7 @@ import HomeMangaProviderStatusCheck from "../components/home/MangaProviderStatus
 import { useRoute, useRouter } from "vue-router";
 import { computed, onMounted, ref } from "vue";
 import SearchBarMain from "../components/search/SearchBarMain.vue";
-import { ProviderStatus } from "../backend/provider/Provider.ts";
+import { ProviderAuthenticationMode, ProviderStatus } from "../backend/provider/Provider.ts";
 import { FwbSpinner } from "flowbite-vue";
 import { useMangaProviderStore } from "../stores/mangaProviderStore.ts";
 import { MangaDetails, MangaInfo, MangaChapters } from "../backend/manga/Manga.ts";
@@ -45,6 +45,7 @@ interface SearchResult {
     warningText?: string;
     icon: string;
     colorClass?: string;
+    sortingOrder?: number;
 }
 
 const chapterSelectVisible = ref(false);
@@ -58,9 +59,12 @@ const titles = computed((): MangaInfo[] => Object.values(results.value)
 const searchCompleted = computed(() => Object.keys(results.value).length >= providerStore.providers.size);
 
 const resultlessProviders = computed(() => Object.values(results.value)
-    .filter(c => !c.error && !c.results));
+    .filter(c => !c.error && !c.results)
+    .slice()
+    .sort((a, b) => (b.sortingOrder || 0) - (a.sortingOrder || 0)));
 const providerErrors = computed(() => Object.values(results.value)
-    .filter(c => c.error));
+    .filter(c => c.error)
+    .sort((a, b) => (b.sortingOrder || 0) - (a.sortingOrder || 0)));
 
 function BeginSearch() {
     const searchLanguage = settings.search.language;
@@ -99,13 +103,14 @@ function BeginSearch() {
             continue;
         }
 
-        if (provider.auth && !auth.IsAuthenticated(provider)) {
+        if (provider.auth && !auth.IsAuthenticated(provider) && provider.auth.authenticationMode == ProviderAuthenticationMode.ALL) {
             results.value[provider.id] = ({
                 provider: provider,
                 error: false,
                 colorClass: "text-orange-400",
                 icon: "key_off",
                 warningText: "Authentication Required",
+                sortingOrder: 2,
             });
             expandedAccordions.value.push("1");
             continue;
@@ -147,6 +152,7 @@ async function SearchSingle(provider: MangaProvider, language: SupportedLanguage
                 icon: "radio_button_unchecked",
                 warningText: "No Results",
                 colorClass: "text-gray-500",
+                sortingOrder: 1,
             });
             expandedAccordions.value.push("1");
         }
@@ -283,7 +289,13 @@ async function ReadManga(manga: MangaInfo) {
                                 <div v-for="result of resultlessProviders">
                                     <div class="flex gap-1">
                                         <MangaProviderBadge :provider="result.provider" />
-                                        <div class="ml-auto flex gap-1" :class="[
+                                        <RouterLink :to="`/credentials?open=${result.provider.id}`" v-if="result.warningText == 'Authentication Required'" class="ml-auto flex gap-1" :class="[
+                                            result.colorClass || 'text-yellow-300'
+                                        ]">
+                                            <MaterialIcon :icon="result.icon" />
+                                            <p class="underline">{{ result.warningText }}</p>
+                                        </RouterLink>
+                                        <div v-else class="ml-auto flex gap-1" :class="[
                                             result.colorClass || 'text-yellow-300'
                                         ]">
                                             <MaterialIcon :icon="result.icon" />

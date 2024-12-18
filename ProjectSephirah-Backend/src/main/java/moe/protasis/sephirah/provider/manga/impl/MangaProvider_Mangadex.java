@@ -1,13 +1,13 @@
 package moe.protasis.sephirah.provider.manga.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import moe.protasis.sephirah.data.cache.CachedEntity;
+import moe.protasis.sephirah.data.cache.ResultCacheOptions;
 import moe.protasis.sephirah.data.manga.*;
 import moe.protasis.sephirah.exception.FeatureNotImplementedException;
 import moe.protasis.sephirah.exception.provider.ProviderNotAvailableException;
 import moe.protasis.sephirah.exception.provider.ProviderRequestException;
 import moe.protasis.sephirah.provider.manga.IProxyMangaProvider;
-import moe.protasis.sephirah.provider.manga.mangadex.MangadexEntity;
+import moe.protasis.sephirah.provider.manga.lib.mangadex.MangadexEntity;
 import moe.protasis.sephirah.util.ProviderUtil;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -76,7 +76,7 @@ public class MangaProvider_Mangadex implements IProxyMangaProvider {
     }
 
     @Override
-    public MangaDetails GetMangaDetails(OkHttpClient client, String id, String lang) {
+    public ResultCacheOptions<MangaDetails> GetMangaDetails(OkHttpClient client, String id, String lang) {
         var language = GetMappedLanguageCode(lang);
         var req = GetRequestBuilder("/manga/%s?contentRating[]=safe&contentRating[]=suggestive&contentRating[]=erotica&includes[]=artist&includes[]=author&includes[]=cover_art".formatted(id))
                 .build();
@@ -95,11 +95,11 @@ public class MangaProvider_Mangadex implements IProxyMangaProvider {
                 .contentRating(GetMappedContentRating(attr.GetString("contentRating")))
                 .chapters(GetMangaChapters(client, id, lang));
 
-        return ret.build();
+        return new ResultCacheOptions<>(ret.build(), Duration.standardDays(1));
     }
 
     @Override
-    public ChapterDetails GetChapterDetails(OkHttpClient client, String mangaId, String chapterId, String language) {
+    public ResultCacheOptions<ChapterDetails> GetChapterDetails(OkHttpClient client, String mangaId, String chapterId, String language) {
         var req = GetRequestBuilder("/chapter/%s?includes[]=manga&includes[]=scanlation_group".formatted(chapterId))
                 .build();
         var res = ProviderUtil.SendProviderRequestString(client, req);
@@ -127,7 +127,7 @@ public class MangaProvider_Mangadex implements IProxyMangaProvider {
                             c
                     ))
                     .toList();
-            ret.images(images);
+            ret.images(ChapterImages.From(images));
         }
 
         // get prev and next
@@ -150,12 +150,7 @@ public class MangaProvider_Mangadex implements IProxyMangaProvider {
             }
         }
 
-        return ret.build();
-    }
-
-    @Override
-    public List<String> GetChapterImages(OkHttpClient client, String manga, String chapterId, String language) {
-        throw new FeatureNotImplementedException();
+        return new ResultCacheOptions<>(ret.build(), Duration.standardDays(1));
     }
 
     private MangaInfo GetMangaInfo(MangadexEntity entity, String lang) {

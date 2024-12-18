@@ -11,7 +11,10 @@ export interface Provider {
 }
 
 export interface AuthenticationProvider {
-    GetCredentialsObject(): any;
+    readonly isProxiedRequest?: boolean;
+    readonly authenticationMode: ProviderAuthenticationMode;
+
+    GetCredentialsObject(): Record<string, any>;
 
     Authenticate(credential: any): Promise<AuthenticationResponse>;
 
@@ -30,6 +33,12 @@ export enum ProviderTokenValidationStatus {
     VALID,
     INVALID,
     REQUEST_FAILED,
+}
+
+export enum ProviderAuthenticationMode {
+    NONE,
+    READER_ONLY,
+    ALL
 }
 
 export interface AuthenticationResponse {

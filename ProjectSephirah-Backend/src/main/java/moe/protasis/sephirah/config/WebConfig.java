@@ -2,7 +2,7 @@ package moe.protasis.sephirah.config;
 
 import lombok.extern.slf4j.Slf4j;
 import moe.protasis.sephirah.resolver.JsonWrapperReturnResolver;
-import moe.protasis.sephirah.resolver.MangaProviderBodyResolver;
+import moe.protasis.sephirah.resolver.ProviderBodyResolver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
@@ -19,7 +19,7 @@ import java.util.List;
 @EnableWebMvc
 public class WebConfig implements WebMvcConfigurer {
     @Autowired
-    private MangaProviderBodyResolver mangaProviderBodyResolver;
+    private ProviderBodyResolver mangaProviderBodyResolver;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {

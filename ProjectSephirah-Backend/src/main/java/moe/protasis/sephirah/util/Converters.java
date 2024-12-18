@@ -1,5 +1,6 @@
 package moe.protasis.sephirah.util;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.joda.time.DateTime;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.convert.ReadingConverter;

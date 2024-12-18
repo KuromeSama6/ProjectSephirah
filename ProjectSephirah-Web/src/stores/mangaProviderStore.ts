@@ -23,7 +23,7 @@ const providerList: MangaProvider[] = [
     // new MangaProviderMangadex(),
     new MangaProviderMangadexProxied(),
     new MangaProviderManganato(),
-    new MangaProviderDmzj(),
+    // new MangaProviderDmzj(),
     new MangaProviderPica(),
     new MangaProviderJmtt(),
 ];

@@ -1,5 +1,5 @@
 import { MangaProvider, ProxiedMangaProvider } from "../../backend/manga/MangaProvider.ts";
-import { ChapterDetails, ChapterGroup, ChapterInfo, MangaChapters, MangaContentRating, MangaDetails, MangaInfo, MangaStatus } from "../../backend/manga/Manga.ts";
+import { ChapterDetails, ChapterGroup, ChapterImages, ChapterInfo, MangaChapters, MangaContentRating, MangaDetails, MangaInfo, MangaStatus } from "../../backend/manga/Manga.ts";
 import RequestUtil from "../../backend/util/RequestUtil.ts";
 import { SupportedLanguage } from "../../backend/common/Language.ts";
 import axios from "axios";
@@ -277,11 +277,14 @@ export default class MangaProviderMangadex implements MangaProvider {
         return ret as ChapterDetails;
     }
 
-    async GetChapterImagesInternal(chapterId: string): Promise<string[]> {
+    async GetChapterImagesInternal(chapterId: string): Promise<ChapterImages> {
         const res = await axios.get(`https://api.mangadex.org/at-home/server/${chapterId}`);
         const data = res.data;
 
-        return data.chapter.data.map((c: string) => `${data.baseUrl}/data/${data.chapter.hash}/${c}`);
+        return {
+            links: data.chapter.data.map((c: string) => `${data.baseUrl}/data/${data.chapter.hash}/${c}`),
+            extraData: {},
+        };
     }
 
 }

@@ -1,5 +1,5 @@
 import { MangaProvider } from "../../backend/manga/MangaProvider.ts";
-import { ChapterDetails, ChapterGroup, MangaChapters, MangaDetails, MangaInfo, MangaStatus } from "../../backend/manga/Manga.ts";
+import { ChapterDetails, ChapterGroup, ChapterImages, MangaChapters, MangaDetails, MangaInfo, MangaStatus } from "../../backend/manga/Manga.ts";
 import axios, { HttpStatusCode } from "axios";
 import { SupportedLanguage } from "../../backend/common/Language.ts";
 import { APIUtil } from "../../backend/api/APIUtil.ts";
@@ -165,7 +165,7 @@ export default class MangaProviderCopyManga implements MangaProvider {
         };
     }
 
-    async GetChapterImages(manga: string, chapter: string, language: SupportedLanguage): Promise<string[] | null> {
+    async GetChapterImages(manga: string, chapter: string, language: SupportedLanguage): Promise<ChapterImages | null> {
         const res = await APIUtil.SendRequest("get", `/api/provider/${this.id}/proxy/manga/${manga}/${chapter}/images?lang=${language}`);
         if (!res.success) return null;
 

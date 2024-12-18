@@ -1,6 +1,5 @@
-package moe.protasis.sephirah.provider.manga.mangadex;
+package moe.protasis.sephirah.provider.manga.lib.mangadex;
 
-import lombok.Data;
 import lombok.Getter;
 import moe.protasis.sephirah.util.JsonWrapper;
 

@@ -29,4 +29,19 @@ public class ChapterGroup {
 //            }
 //        }
 //    }
+
+    public static ChapterGroup Single(MangaDetails manga) {
+        return ChapterGroup.builder()
+                .id("0")
+                .count(1)
+                .name("Default")
+                .chapters(List.of(
+                        ChapterInfo.builder()
+                                .id("0")
+                                .index(0)
+                                .date(manga.getLatestUpdate())
+                                .build()
+                ))
+                .build();
+    }
 }

@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import moe.protasis.sephirah.exception.NotFoundException;
 import moe.protasis.sephirah.provider.manga.IProxyMangaProvider;
 import moe.protasis.sephirah.repository.CachedEntityService;
-import moe.protasis.sephirah.service.MangaProviderService;
+import moe.protasis.sephirah.service.ProviderService;
 import moe.protasis.sephirah.util.JsonWrapper;
 import okhttp3.OkHttpClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,13 +17,13 @@ public class MangaProviderProxyController {
     @Autowired
     private OkHttpClient client;
     @Autowired
-    private MangaProviderService providerService;
+    private ProviderService providerService;
     @Autowired
     private CachedEntityService cacheService;
 
     @GetMapping("/status")
     public JsonWrapper GetStatus(@PathVariable String providerId) {
-        var provider = providerService.GetMangaProvider(providerId);
+        var provider = providerService.GetMangaProvider(providerId, IProxyMangaProvider.class);
         if (provider == null)
             throw new NotFoundException("provider %s not found".formatted(providerId));
 
@@ -44,6 +44,9 @@ public class MangaProviderProxyController {
     public JsonWrapper GetMangaDetails(@PathVariable String id, IProxyMangaProvider provider, @RequestParam String lang) {
         var ret = providerService.GetMangaDetails(provider, id, lang);
 
+        if (ret == null)
+            throw new NotFoundException();
+
         return new JsonWrapper()
                 .Set("provider", provider.GetId())
                 .SetObject("details", ret.entity())
@@ -58,6 +61,9 @@ public class MangaProviderProxyController {
             @RequestParam String lang
     ) {
         var ret = providerService.GetChapterDetails(provider, mangaId, chapterId, lang);
+        if (ret == null)
+            throw new NotFoundException();
+
         return new JsonWrapper()
                 .Set("provider", provider.GetId())
                 .SetObject("details", ret.entity())
@@ -72,10 +78,14 @@ public class MangaProviderProxyController {
             @PathVariable String chapterId,
             @RequestParam String lang
     ) {
-        var images = provider.GetChapterImages(client, mangaId, chapterId, lang);
+        var images = providerService.GetChapterImages(provider, mangaId, chapterId, lang);
+        if (images == null)
+            throw new NotFoundException();
+
         return new JsonWrapper()
                 .Set("provider", provider.GetId())
-                .Set("images", images)
+                .SetObject("images", images.entity())
+                .Set("cache", images)
                 .Set("image_cache_length", provider.GetImageCacheLength());
     }
 }

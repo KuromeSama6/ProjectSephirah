@@ -9,15 +9,15 @@ import MaterialIcon from "../common/util/MaterialIcon.vue";
 import { useToast } from "primevue/usetoast";
 import { useClipboard } from "@vueuse/core";
 
-const authentication = useAuthenticationStore();
+const auth = useAuthenticationStore();
 const toast = useToast();
 const clipboard = useClipboard();
 
 const props = defineProps<{
     provider: MangaProvider;
 }>();
-const auth = props.provider.auth;
-const credentials = ref(auth?.GetCredentialsObject());
+const authProvider = props.provider.auth;
+const credentials = ref(authProvider?.GetCredentialsObject());
 const loading = ref({
     authenticate: false,
     validate: false,
@@ -27,11 +27,11 @@ const loading = ref({
 async function Authenticate() {
     loading.value.authenticate = true;
     try {
-        var res = await auth!.Authenticate(credentials.value);
+        var res = await authProvider!.Authenticate(credentials.value);
         if (res.success && res.token) {
             toast.add({ severity: "success", summary: "Success", detail: "Successfully authenticated.", life: 3000 });
-            authentication.providers[props.provider.id] = res.token;
-            authentication.Save();
+            auth.providers[props.provider.id] = res.token;
+            auth.Save();
 
         } else {
             toast.add({ severity: "error", summary: "Authentication Error", detail: res.message, life: 3000 });
@@ -47,23 +47,23 @@ async function Authenticate() {
 
 async function Logout() {
     loading.value.deauthenticate = true;
-    await auth?.Deauthenticate();
-    delete authentication.providers[props.provider.id];
-    authentication.Save();
+    await authProvider?.Deauthenticate();
+    delete auth.providers[props.provider.id];
+    auth.Save();
     toast.add({ severity: "success", summary: "Success", detail: "Successfully deauthenticated.", life: 3000 });
     loading.value.deauthenticate = false;
 }
 
 async function ValidateToken() {
     loading.value.validate = true;
-    const ret = await auth?.ValidateToken();
+    const ret = await authProvider?.ValidateToken();
     loading.value.validate = false;
     if (ret == ProviderTokenValidationStatus.VALID) {
         toast.add({ severity: "success", summary: "Success", detail: "Token is valid.", life: 3000 });
     } else if (ret == ProviderTokenValidationStatus.INVALID) {
         toast.add({ severity: "error", summary: "Invalid Token", detail: "Token is invalid. You have been deauthenticated.", life: 3000 });
-        delete authentication.providers[props.provider.id];
-        authentication.Save();
+        delete auth.providers[props.provider.id];
+        auth.Save();
     } else {
         toast.add({ severity: "error", summary: "Network Error", detail: "Validation failed due to a network issue. Your token may be still valid.", life: 3000 });
     }
@@ -74,25 +74,33 @@ async function ValidateToken() {
 <template>
     <div class="border rounded flex flex-col border-gray-500 p-4">
         <div class="flex gap-1 items-center">
-            <div v-if="auth" class="w-full">
-                <div v-if="!authentication.IsAuthenticated(provider)" class="flex flex-col gap-2">
+            <div v-if="authProvider" class="w-full">
+                <div v-if="!auth.IsAuthenticated(provider)" class="flex flex-col gap-2">
                     <p>Not authenticated. Enter your account credentials of {{ provider.info.name }}.</p>
-                    <div class="flex flex-col gap-2 w-full">
-                        <IftaLabel v-for="field in Object.keys(credentials)">
-                            <InputText :type="field == 'password' ? 'password' : 'text'" v-model="credentials[field]" class="w-full" :disabled="loading.authenticate" />
-                            <label>{{ field.toString().toUpperCase() }}</label>
-                        </IftaLabel>
-                        <Button severity="secondary" outlined label="Authenticate" :loading="loading.authenticate" @click="Authenticate()">
-                            <template #icon>
-                                <MaterialIcon icon="key" />
-                            </template>
-                        </Button>
-                    </div>
+                    <form @submit.prevent="">
+                        <div class="flex flex-col gap-2 w-full">
+                            <IftaLabel v-for="field in Object.keys(credentials!)">
+                                <InputText :type="field == 'password' ? 'password' : 'text'" v-model="credentials![field]" class="w-full" :disabled="loading.authenticate" />
+                                <label>{{ field.toString().toUpperCase() }}</label>
+                            </IftaLabel>
+                            <div class="text-yellow-300 border-yellow-300 border rounded p-2 flex gap-1 items-center" v-if="authProvider.isProxiedRequest">
+                                <MaterialIcon icon="warning" />
+                                <p>
+                                    Your authentication request with your credentials will be proxied through Project Sephirah servers, and nothing else. We do not store your credentials. Do not enter your credentials if you are uncomfortable us doing so.
+                                </p>
+                            </div>
+                            <Button severity="secondary" outlined label="Authenticate" :loading="loading.authenticate" @click="Authenticate()" type="submit">
+                                <template #icon>
+                                    <MaterialIcon icon="key" />
+                                </template>
+                            </Button>
+                        </div>
+                    </form>
                 </div>
                 <div class="flex flex-col gap-2" v-else>
-                    <p>Token: <code class="bg-gray-700 rounded px-0.5">{{ authentication.GetToken(provider)?.toString().substring(0, 6) }}*******</code></p>
-                    <div class="flex gap-2">
-                        <Button severity="secondary" outlined label="Copy Token" @click="clipboard.copy(authentication.GetToken(provider))">
+                    <p>Token: <code class="bg-gray-700 rounded px-0.5">{{ auth.GetToken(provider)?.toString().substring(0, 6) }}*******</code></p>
+                    <div class="flex gap-2 flex-col md:flex-row">
+                        <Button severity="secondary" outlined label="Copy Token" @click="clipboard.copy(auth.GetToken(provider))">
                             <template #icon>
                                 <MaterialIcon icon="content_paste" />
                             </template>

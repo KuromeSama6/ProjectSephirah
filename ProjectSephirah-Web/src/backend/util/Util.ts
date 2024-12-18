@@ -1,3 +1,5 @@
+import { JSEncrypt } from "jsencrypt";
+
 export namespace RandomUtil {
     export function GenerateRandomString(length: number): string {
         const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -9,5 +11,13 @@ export namespace RandomUtil {
         }
 
         return result;
+    }
+}
+
+export namespace CryptoUtil {
+    export function RsaEncrypt(data: string, publicKey: string): string {
+        const encryptor = new JSEncrypt();
+        encryptor.setPublicKey(publicKey);
+        return encryptor.encrypt(data) as string;
     }
 }

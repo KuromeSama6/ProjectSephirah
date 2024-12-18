@@ -1,17 +1,14 @@
-import { MangaProvider, ProxiedMangaProvider } from "../../backend/manga/MangaProvider.ts";
-import { ChapterDetails, MangaDetails, MangaInfo } from "../../backend/manga/Manga.ts";
-import RequestUtil from "../../backend/util/RequestUtil.ts";
+import { MangaProvider } from "../../backend/manga/MangaProvider.ts";
+import { ChapterDetails, ChapterInfo, MangaChapters, MangaDetails, MangaInfo, MangaStatus } from "../../backend/manga/Manga.ts";
 import { SupportedLanguage } from "../../backend/common/Language.ts";
 import axios, { AxiosHeaders, RawAxiosRequestHeaders } from "axios";
-import { AuthenticationProvider, AuthenticationResponse, ProviderTokenValidationStatus } from "../../backend/provider/Provider.ts";
+import { AuthenticationProvider, AuthenticationResponse, ProviderAuthenticationMode, ProviderTokenValidationStatus } from "../../backend/provider/Provider.ts";
 import { RandomUtil } from "../../backend/util/Util.ts";
 import CryptoJS from "crypto-js";
 import { useAuthenticationStore } from "../../stores/authenticationStore.ts";
 import { useSingletonsStore } from "../../stores/singletonsStore.ts";
-import GetRequestHeaders = PicaAPI.GetRequestHeaders;
 
 export default class MangaProviderPica implements MangaProvider {
-    readonly authenticated = true;
     readonly id = "pica";
     readonly info = {
         name: "哔咔漫画",
@@ -20,6 +17,10 @@ export default class MangaProviderPica implements MangaProvider {
         primaryLanguage: "cn" as SupportedLanguage,
         supportedSearchLanguages: ["cn"] as SupportedLanguage[],
     };
+
+    async CheckAvailability(): Promise<boolean> {
+        return true;
+    }
 
     async Search(kw: string, language: SupportedLanguage): Promise<MangaInfo[] | null> {
         var res = await axios.post("https://api.go2778.com/comics/advanced-search?page=1&s=dd", {
@@ -47,11 +48,86 @@ export default class MangaProviderPica implements MangaProvider {
         return ret;
     }
 
-    readonly auth = authenticationProvider;
+    async GetMangaDetails(id: string, language: SupportedLanguage): Promise<MangaDetails | null> {
+        const res = await axios.get(`https://api.go2778.com/comics/${id}`, {
+            headers: PicaAPI.GetRequestHeaders(`comics/${id}`, "GET"),
+        });
+        const data = res.data.data.comic;
+        // console.log(data);
 
+        return {
+            provider: this,
+            id: data._id,
+            title: data.title,
+            author: data.author,
+            coverUrl: "https://s3.picacomic.com/static/" + data.thumb.path,
+            description: data.description,
+            status: MangaStatus.UNKNOWN,
+            latestUpdate: new Date(data.updated_at),
+            latestChapter: "",
+            chapters: () => this.GetChaptersInternal(id),
+        };
+    }
+
+    async GetChaptersInternal(id: string): Promise<MangaChapters> {
+        const res = await axios.get(`https://api.go2778.com/comics/${id}/eps?page=1`, {
+            headers: PicaAPI.GetRequestHeaders(`comics/${id}/eps?page=1`, "GET"),
+        });
+        const data = res.data.data.eps;
+        const docs = data.docs;
+
+        const chapters: ChapterInfo[] = [];
+        for (const doc of docs) {
+            chapters.push({
+                provider: this,
+                id: doc.order.toString(),
+                title: doc.title,
+                date: new Date(doc.updated_at),
+                index: doc.order - 1,
+            });
+        }
+
+        return {
+            groups: [{
+                id: "default",
+                name: "Default",
+                count: chapters.length,
+                chapters: chapters,
+            }],
+        };
+    }
+
+    async GetChapterDetails(mangaId: string, chapterId: string, language: SupportedLanguage): Promise<ChapterDetails | null> {
+        const chapters = await this.GetChaptersInternal(mangaId);
+        const chapterInfo = chapters.groups[0].chapters.find(c => c.id == chapterId);
+
+        const res = await axios.get(`https://api.go2778.com/comics/${mangaId}/order/${chapterId}/pages?page=1`, {
+            headers: PicaAPI.GetRequestHeaders(`comics/${mangaId}/order/${chapterId}/pages?page=1`, "GET"),
+        });
+        const data = res.data.data.pages.docs;
+
+        //https://img.picacomic.com/iLzmLuVPU4sYyUaI-QY2JaZ5Oy8sfhCBYrrMcR9JfVo/rs:fill:300:400:0/g:sm/aHR0cHM6Ly9zdG9yYWdlLWIucGljYWNvbWljLmNvbS9zdGF0aWMvNDAxMzE3N2YtZTBkNC00ZGVmLTgzZWUtZGI4OWNlOGFkMTc5LmpwZw.jpg
+
+        // console.log(data);
+
+        return {
+            ...chapterInfo!,
+            manga: (await this.GetMangaDetails(mangaId, language))!,
+            images: () => ({
+                links: data.map((c: any) => `https://img.picacomic.com/${c.media.path.replace("tobeimg/", "")}`),
+                extraData: {},
+            }),
+            imageCacheLength: 0,
+        };
+    }
+
+    readonly auth = authenticationProvider;
 }
 
 const authenticationProvider: AuthenticationProvider = {
+    isProxiedRequest: false,
+    authenticationMode: ProviderAuthenticationMode.ALL,
+
     GetCredentialsObject(): any {
         return {
             username: "",
@@ -97,7 +173,7 @@ const authenticationProvider: AuthenticationProvider = {
     async ValidateToken(): Promise<ProviderTokenValidationStatus> {
         const toast = useSingletonsStore().toastSingleton;
         const token = useAuthenticationStore().GetTokenByProviderId("pica");
-        if (!token) return false;
+        if (!token) return ProviderTokenValidationStatus.INVALID;
 
         try {
             const res = await axios.get("https://api.go2778.com/announcements?pages=1", {
